@@ -3,17 +3,20 @@
 
 import paho.mqtt.client as mqtt
 from random import randrange, uniform
+from datetime import datetime
 import time
 
-mqttBroker = "128.114.62.135"
+mqttBroker = input("Broker IP: ")
+client_id = input("Enter an ID: ")
 
-client = mqtt.Client("laptop")  # Idk what this line does
+client = mqtt.Client(client_id)  # Initialize
 client.connect(mqttBroker)  # I think this assumes the default port
 
+topic = input("Topic: ")
+
 while True:
-    topic = "plug/laptop"
     randNumber = uniform(20.0, 21.0)
-    message = "Now o' clock, Laptop, " + str(randNumber) + "\n"
+    message = str(datetime.now()) + ", " + client_id + ", " + str(randNumber)
     client.publish(topic, message)
-    print("Just published to topic " + topic + "\n" + message)
+    print(str(topic) + ": " + message)
     time.sleep(1)
