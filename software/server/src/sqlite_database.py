@@ -6,9 +6,9 @@ connection = sqlite3.connect(DATA_DIR + 'users.sqlite')
 cursor = connection.cursor()
 
 # cursor.execute("""CREATE TABLE users (
-#                 first text,
-#                 last text,
-#                 account_num integer
+#                 first TEXT,
+#                 last TEXT,
+#                 account_num INT PRIMARY KEY
 #                 )""")
 
 cursor.execute("INSERT INTO users VALUES ('John', 'Smith', 0)")
