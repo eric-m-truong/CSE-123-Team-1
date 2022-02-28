@@ -72,7 +72,6 @@ def db_init(cursor):
 
 def db_add_plug(cursor, plug):
     cursor.execute("""INSERT INTO Plugs VALUES (:id, :name)""", {'id': None, 'name': plug.name})
-    # cursor.execute("""INSERT INTO Plugs VALUES (?)""", (plug.name))
 
 def db_add_data(cursor, datapoint):
     cursor.execute("""INSERT INTO Data VALUES (:timestamp, :plug_id, :power)""", {'timestamp': datapoint.timestamp, 'plug_id': datapoint.plug_id, 'power': datapoint.power})
