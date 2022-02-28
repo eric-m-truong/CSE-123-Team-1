@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 
+
 """
 id: Is assigned automatically by the database.
     We don't want to initialize it ourselves.
@@ -15,6 +16,7 @@ class Plug:
     id: int = field(init=False)
     # hub_id: int
     name: float = ""
+
 
 """
 timestamp:  Timestamp
