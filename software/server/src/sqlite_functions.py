@@ -1,5 +1,5 @@
 import sqlite3
-from plug import Plug
+from table_classes import Plug
 
 def db_init(cursor):
     # # Users
