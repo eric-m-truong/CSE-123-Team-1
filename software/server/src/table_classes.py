@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import datetime
 
 """
 id: Is assigned automatically by the database.
@@ -15,5 +16,13 @@ class Plug:
     # hub_id: int
     name: float = ""
 
-# @dataclass
-# class Datapoint:
+"""
+timestamp:  Timestamp
+plug_id:    Should match an existing Plug.id
+power:      Power in kWh
+"""
+@dataclass
+class Datapoint:
+    timestamp: datetime
+    plug_id: int
+    power: float
