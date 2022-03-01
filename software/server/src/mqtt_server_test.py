@@ -18,6 +18,10 @@ client.loop_start()  # Runs a loop in a background thread
 client.subscribe("plug/#")
 client.on_message=on_message
 
-# DEBUG
-time.sleep(30)
+# Go forever until stopped
+running = True
+while (running):
+    command = input("Type 'stop' to close the server\n")
+    running = ("stop" != command)
+
 client.loop_stop()
