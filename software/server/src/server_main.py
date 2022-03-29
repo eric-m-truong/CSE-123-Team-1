@@ -3,8 +3,22 @@ from sqlite_functions import *
 from datetime import datetime
 import paho.mqtt.client as mqtt
 
+######################################################
+#          MQTT Message Handling (Callback)
+######################################################
 def on_message(client, userdata, message):
-    print("Received message: ", str(message.payload.decode("utf-8")))
+    msg_string = str(message.payload.decode("utf-8"))
+    # print("Received message: ", msg_string)   # DEBUG
+
+    # Parse Message (CSV String to list)
+    msg_list = msg_string.split(",")            # Splits message into list
+    msg_list = list(map(str.strip, msg_list))   # Strips whitespace
+    
+    ##DEBUG
+    print(msg_list)
+
+
+
 
 
 ######################################################
@@ -42,16 +56,6 @@ while (running):
 client.loop_stop()  # MQTT
 connection.commit() # SQLite
 connection.close()  # SQLite
-
-
-######################################################
-#                 Message Handling
-######################################################
-def on_message(client, userdata, message):
-    print("Received message: ", str(message.payload.decode("utf-8")))
-
-
-
 
 
 
