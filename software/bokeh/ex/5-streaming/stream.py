@@ -15,10 +15,12 @@ cds = ColumnDataSource(data={'x': xs, 'y': ys})
 p.line('x', 'y', source=cds)
 
 def stream():
-    global x, y
-    x += 1
-    y += np.random.randn()
-    cds.stream({'x': [x], 'y': [y]})
+  # x, y are single values. when we add to them, we produce a new (x,y) pt
+  global x, y
+  x += 1
+  y += np.random.randn()
+  # append this new pt to the graph
+  cds.stream({'x': [x], 'y': [y]})
 
 curdoc().add_root(column(p))
 curdoc().add_periodic_callback(stream, 100)
