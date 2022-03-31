@@ -2,36 +2,15 @@ import sqlite3
 from table_classes import Plug, Datapoint
 
 def db_init(cursor):
-    # # Users
-    # try:
-    #     cursor.execute(
-    #         """CREATE TABLE Users (
-    #             id INTEGER PRIMARY KEY AUTOINCREMENT,
-    #             name VARCHAR(255) NOT NULL
-    #         )"""
-    #     )
-    # except:
-    #     print("Users table may already exist")
-
-    # # Hubs
-    # try:
-    #     cursor.execute(
-    #         """CREATE TABLE Hubs (
-    #             id INTEGER PRIMARY KEY AUTOINCREMENT,
-    #             user_id INTEGER,
-    #             FOREIGN KEY(user_id) REFERENCES Users(id)
-    #         )"""
-    #     )
-    # except:
-    #     print("Hubs table may already exist")
 
     # Plugs
     try:
         cursor.execute( #TODO Add the FOREIGN KEY hub_id back in
             """
             CREATE TABLE Plugs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name VARCHAR(255) NOT NULL
+                mac_addr TEXT PRIMARY KEY,
+                alias TEXT,
+                is_on BOOLEAN NOT NULL
             )
             """
         )
@@ -44,9 +23,9 @@ def db_init(cursor):
             """
             CREATE TABLE Data (
                 timestamp DATETIME,
-                plug_id INTEGER,
+                plug_id TEXT,
                 power FLOAT,
-                FOREIGN KEY(plug_id) REFERENCES Plugs(id)
+                FOREIGN KEY(plug_id) REFERENCES Plugs(mac_addr)
             )
             """
         )
@@ -71,7 +50,7 @@ def db_init(cursor):
         print("Index may already exist")
 
 def db_add_plug(cursor, plug):
-    cursor.execute("""INSERT INTO Plugs VALUES (:id, :name)""", {'id': None, 'name': plug.name})
+    cursor.execute("""INSERT INTO Plugs VALUES (:mac_addr, :alias, :is_on)""", {'mac_addr': plug.mac_addr, 'name': plug.alias, 'is_on': plug.is_on})
 
 def db_add_data(cursor, datapoint):
     cursor.execute("""INSERT INTO Data VALUES (:timestamp, :plug_id, :power)""", {'timestamp': datapoint.timestamp, 'plug_id': datapoint.plug_id, 'power': datapoint.power})
