@@ -30,3 +30,9 @@ depends on:
 - mosquitto
 - python paho-mqtt
 - bokeh
+
+## stream_mqtt_nobuf
+
+- does the chart update in the `on_message` callback
+- it's _probably_ better to buffer data and update the graph less often, because
+  updates require redrawing the graph entirely
