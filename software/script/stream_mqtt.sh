@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [ "$#" -eq 0 ]; then
+if [ "$#" -lt 2 ]; then
   name=$(basename "$0")
   echo "run a local mqtt and generate data on a channel"
-  echo "usage: $name [# plugs] script.py [args...]"
+  echo "usage: $name # plugs [args...]"
   exit 1
 fi
 
@@ -22,17 +22,13 @@ if [ -z "$(pip list | grep -i "paho-mqtt")" ]; then
   exit 1
 fi
 
-if [ "$#" -gt 1 ]; then
-  plug_num=$1
-  shift
-else
-  plug_num=0
-fi
+plug_num=$1
+shift
 
 trap 'kill $(jobs -p)' EXIT
 
 mosquitto &
-python datagen.py $plug_num &
-python $@ &
+(cd $(dirname $0) && python datagen.py $plug_num) &
+$@ &
 
 wait

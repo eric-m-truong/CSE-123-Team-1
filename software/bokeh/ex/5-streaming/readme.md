@@ -10,7 +10,8 @@
 
 ## generating bogus data
 
-`datagen` publishes `ts,val` pairs to `plug/0` at random intervals between 0-1
+`../../../script/datagen.py` publishes `ts,val` pairs to random plug #'s channel
+`plug/#` at random intervals between 0-1
 
 ## stream
 
@@ -24,7 +25,9 @@ consumes data from mqtt channel and uses it to update bokeh chart
 
 # running
 
-run `stream_mqtt.sh`
+```
+../../../script/stream_mqtt.sh 1 bokeh serve --show stream_mqtt.py
+```
 
 depends on:
 - mosquitto
