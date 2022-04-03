@@ -1,4 +1,5 @@
 import sqlite3
+
 from table_classes import Plug, Datapoint
 
 def db_init(cursor):
@@ -50,7 +51,11 @@ def db_init(cursor):
         print("Index may already exist")
 
 def db_add_plug(cursor, plug):
-    cursor.execute("""INSERT INTO Plugs VALUES (:mac_addr, :alias, :is_on)""", {'mac_addr': plug.mac_addr, 'name': plug.alias, 'is_on': plug.is_on})
+    cursor.execute("""INSERT INTO Plugs VALUES (:mac_addr, :alias, :is_on)""", {'mac_addr': plug.mac_addr, 'alias': plug.alias, 'is_on': plug.is_on})
 
 def db_add_data(cursor, datapoint):
     cursor.execute("""INSERT INTO Data VALUES (:timestamp, :plug_id, :power)""", {'timestamp': datapoint.timestamp, 'plug_id': datapoint.plug_id, 'power': datapoint.power})
+
+def db_get_plug_by_mac(cursor, mac_addr):
+    cursor.execute("SELECT * FROM Plugs WHERE mac_addr=(:mac_addr)", {'mac_addr': mac_addr})
+    return cursor.fetchall()

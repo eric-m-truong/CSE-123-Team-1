@@ -25,13 +25,16 @@ def on_message(client, userdata, message):
     # Parse MAC Address from topic.
     mac_addr = message.topic.split('/').pop()   # Grabs the last element
     
-    # TODO
+    connection = sqlite3.connect(DATA_DIR + DB_NAME)
+    
     # If this plug doesn't exist in the database, add it
+    if not db_get_plug_by_mac(connection.cursor(), mac_addr):   # If returns an empty list
+        db_add_plug(connection.cursor(), Plug(mac_addr, True))  # Add a plug into the database
 
     # Add the datapoint
     new_datapoint = Datapoint(str(datetime.now()), mac_addr, msg_list[0])
-    connection = sqlite3.connect(DATA_DIR + DB_NAME)
     db_add_data(connection.cursor(), new_datapoint)
+
     connection.commit()
     connection.close()
 
