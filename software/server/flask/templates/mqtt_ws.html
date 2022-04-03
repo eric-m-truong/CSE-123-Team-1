@@ -37,7 +37,11 @@
       source: source,
   });
 
-  client = new Paho.MQTT.Client("localhost", Number(8883), "test");
+  var rBuf = new Int8Array(4);
+  window.crypto.getRandomValues(rBuf);
+  const r = new DataView(rBuf.buffer).getUint32();
+
+  client = new Paho.MQTT.Client("localhost", Number(8883), "plug0-"+r);
   client.onMessageArrived = onMessageArrived;
   client.connect({onSuccess:onConnect});
 
