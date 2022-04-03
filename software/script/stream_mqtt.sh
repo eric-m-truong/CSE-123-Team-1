@@ -12,11 +12,6 @@ if ! [ -x "$(command -v mosquitto)" ]; then
   exit 1
 fi
 
-if ! [ -x "$(command -v bokeh)" ]; then
-  echo 'bokeh not installed, aborting' >&2
-  exit 1
-fi
-
 if [ -z "$(pip list | grep -i "paho-mqtt")" ]; then
   echo 'python-paho-mqtt not installed, aborting' >&2
   exit 1
@@ -27,7 +22,7 @@ shift
 
 trap 'kill $(jobs -p)' EXIT
 
-mosquitto &
+(cd $(dirname $0) && mosquitto -c mosquitto.conf) &
 (cd $(dirname $0) && python datagen.py $plug_num) &
 $@ &
 
