@@ -59,3 +59,8 @@ E.g. <https://docs.bokeh.org/en/latest/docs/user_guide/data.html?highlight=ajax#
 - uses websockets
 - fully client side
 - run like `mqtt_multi`, specify which plug in same way
+
+# post
+
+equivalent to `../django/post`, plus `localhost/toggle/[plug_num]` causes
+callback with `plug_num` to be printed
