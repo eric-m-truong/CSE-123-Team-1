@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from operator import truediv
 import sqlite3
 from sqlite_functions import *
@@ -15,9 +17,6 @@ mqttBroker = "broker.hivemq.com"
 # Is called whenever the server receives an MQTT message
 def on_message(client, userdata, message):
     msg_string = str(message.payload.decode("utf-8"))
-    # print("Type:", type(client), "Inside:", client._client_id)
-    print(type(userdata))
-    # print("Received message: ", msg_string)   # DEBUG
 
     # Parse Message (CSV String to list)
     msg_list = msg_string.split(",")            # Splits message into list
@@ -29,17 +28,15 @@ def on_message(client, userdata, message):
     # TODO
     # If this plug doesn't exist in the database, add it
 
-    # TODO
     # Add the datapoint
-    new_datapoint = Datapoint(str(datetime.now()), mac_addr, msg_list[0])    #TODO timestamp and MAC Address
+    new_datapoint = Datapoint(str(datetime.now()), mac_addr, msg_list[0])
     connection = sqlite3.connect(DATA_DIR + DB_NAME)
     db_add_data(connection.cursor(), new_datapoint)
     connection.commit()
     connection.close()
-    
-    ##DEBUG
-    print(msg_list)
 
+    # DEBUG
+    print(new_datapoint)
 
 
 
@@ -57,7 +54,6 @@ connection = sqlite3.connect(DATA_DIR + DB_NAME)  #TODO Uncomment to use an actu
 # connection = sqlite3.connect(":memory:")            #TODO Remove this DEBUG line
 cursor = connection.cursor()
 db_init(cursor)
-# TODO Maybe remove
 connection.commit() # SQLite
 connection.close()  # SQLite
 
@@ -78,9 +74,6 @@ while (running):
     
 # Graceful Close
 client.loop_stop()  # MQTT
-# TODO Maybe remove
-# connection.commit() # SQLite
-# connection.close()  # SQLite
 
 
 
