@@ -1,8 +1,15 @@
+#!/usr/bin/python3
+
 from operator import truediv
 import sqlite3
 from sqlite_functions import *
 from datetime import datetime
 import paho.mqtt.client as mqtt
+
+# Constants
+DATA_DIR = '../data/'
+DB_NAME = 'data.sqlite'
+mqttBroker = "broker.hivemq.com"
 
 ######################################################
 #          MQTT Message Handling (Callback)
@@ -10,46 +17,46 @@ import paho.mqtt.client as mqtt
 # Is called whenever the server receives an MQTT message
 def on_message(client, userdata, message):
     msg_string = str(message.payload.decode("utf-8"))
-    # print("Type:", type(client), "Inside:", client._client_id)
-    print(type(userdata))
-    # print("Received message: ", msg_string)   # DEBUG
 
     # Parse Message (CSV String to list)
     msg_list = msg_string.split(",")            # Splits message into list
     msg_list = list(map(str.strip, msg_list))   # Strips whitespace
-    
-    # TODO
-    # If this plug doesn't exist in the database, add it
 
-    # TODO
-    # Add the datapoint
-    new_datapoint = Datapoint(msg_list[0], msg_list[1], msg_list[2])
+    # Parse MAC Address from topic.
+    mac_addr = message.topic.split('/').pop()   # Grabs the last element
+    
     connection = sqlite3.connect(DATA_DIR + DB_NAME)
+    
+    # If this plug doesn't exist in the database, add it
+    if not db_get_plug_by_mac(connection.cursor(), mac_addr):   # If returns an empty list
+        db_add_plug(connection.cursor(), Plug(mac_addr, True))  # Add a plug into the database
+
+    # Add the datapoint
+    new_datapoint = Datapoint(str(datetime.now()), mac_addr, msg_list[0])
     db_add_data(connection.cursor(), new_datapoint)
+
     connection.commit()
     connection.close()
-    
-    ##DEBUG
-    print(msg_list)
 
+    # DEBUG
+    print(new_datapoint)
 
 
 
 
 ######################################################
-#                   INITIALIZE
+#                       MAIN
 ######################################################
-# Constants
-DATA_DIR = '../data/'
-DB_NAME = 'data.sqlite'
-mqttBroker = "broker.hivemq.com"
+
+#-------------
+# INITIALIZE
+#-------------
 
 # SQLite
 connection = sqlite3.connect(DATA_DIR + DB_NAME)  #TODO Uncomment to use an actual database
 # connection = sqlite3.connect(":memory:")            #TODO Remove this DEBUG line
 cursor = connection.cursor()
 db_init(cursor)
-# TODO Maybe remove
 connection.commit() # SQLite
 connection.close()  # SQLite
 
@@ -60,11 +67,9 @@ client.loop_start()  # Runs a loop in a background thread
 client.subscribe("plug/#")
 client.on_message=on_message
 
-
-######################################################
-#             Close Server on Command
-######################################################
-# Closing Command
+#--------------------------
+# Close Server on Command
+#--------------------------
 running = True
 while (running):
     command = input("Type 'stop' to close the server\n\n")
@@ -72,9 +77,6 @@ while (running):
     
 # Graceful Close
 client.loop_stop()  # MQTT
-# TODO Maybe remove
-# connection.commit() # SQLite
-# connection.close()  # SQLite
 
 
 

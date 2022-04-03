@@ -4,8 +4,7 @@
 # https://medium.com/python-point/mqtt-basics-with-python-examples-7c758e605d4
 
 import paho.mqtt.client as mqtt
-from random import randrange, uniform
-from datetime import datetime
+from random import uniform
 import time
 import sys
 
@@ -23,7 +22,7 @@ client = mqtt.Client()  # Initialize
 client.connect(mqttBroker)  # I think this assumes the default port
 
 while True:
-    randNumber = uniform(20.0, 21.0)
+    randNumber = uniform(0.0, 100.0)
     message = str(randNumber)
     client.publish(topic, message)
     print(str(topic) + ": " + message)
