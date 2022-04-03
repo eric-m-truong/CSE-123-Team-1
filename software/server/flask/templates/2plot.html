@@ -1,0 +1,16 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Embedding a Bokeh Server With {{ framework }}</title>
+</head>
+
+<body>
+  <div>This is an example of 2 streaming plots embedded in an arbitrary html
+    document. Open a new tab of this page and observe that multiple connections
+  are created.</div>
+  {{ plot1|safe }}
+  {{ plot2|safe }}
+</body>
+</html>
