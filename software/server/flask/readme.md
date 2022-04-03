@@ -7,8 +7,6 @@ run these with
 ../../script/stream_mqtt.sh python script.py
 ```
 
-except for `mqtt_multi.py` which has its own helper script
-
 # 2chart
 
 demos 2 live charts at once
@@ -55,3 +53,9 @@ javascript callbacks from python, however.
 Ajax seems like a way to keep stuff client side but seems more involved
 
 E.g. <https://docs.bokeh.org/en/latest/docs/user_guide/data.html?highlight=ajax#ajaxdatasource>
+
+# mqtt_ws
+
+- uses websockets
+- fully client side
+- run like `mqtt_multi`, specify which plug in same way
