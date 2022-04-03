@@ -22,13 +22,16 @@ def on_message(client, userdata, message):
     # Parse Message (CSV String to list)
     msg_list = msg_string.split(",")            # Splits message into list
     msg_list = list(map(str.strip, msg_list))   # Strips whitespace
+
+    # Parse MAC Address from topic.
+    mac_addr = message.topic.split('/').pop()   # Grabs the last element
     
     # TODO
     # If this plug doesn't exist in the database, add it
 
     # TODO
     # Add the datapoint
-    new_datapoint = Datapoint(str(datetime.now()), message.topic, msg_list[0])    #TODO timestamp and MAC Address
+    new_datapoint = Datapoint(str(datetime.now()), mac_addr, msg_list[0])    #TODO timestamp and MAC Address
     connection = sqlite3.connect(DATA_DIR + DB_NAME)
     db_add_data(connection.cursor(), new_datapoint)
     connection.commit()
