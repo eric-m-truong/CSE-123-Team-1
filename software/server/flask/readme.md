@@ -63,4 +63,4 @@ E.g. <https://docs.bokeh.org/en/latest/docs/user_guide/data.html?highlight=ajax#
 # post
 
 equivalent to `../django/post`, plus `localhost/toggle/[plug_num]` causes
-callback with `plug_num` to be printed
+callback to connect to mqtt server and send plug # to topic `ctrl`
