@@ -10,7 +10,7 @@ alias:      A more readable name for the plug (i.e. "Lamp").
             Assigned by the customer.
 
 Intialization:
-    new_plug = Plug("plug_name")
+    new_plug = Plug(<fields>, ...)
 """
 @dataclass
 class Plug:
