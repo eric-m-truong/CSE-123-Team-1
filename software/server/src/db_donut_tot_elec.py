@@ -1,4 +1,5 @@
 from math import pi
+from pathlib import Path
 
 import pandas as pd
 
@@ -10,8 +11,12 @@ import sqlite3
 
 DATA_DIR = '../data/'
 DB_NAME = 'data.sqlite'
+DB_PATH = DATA_DIR + DB_NAME
 
-connection = sqlite3.connect(DATA_DIR + DB_NAME)
+if not Path(DB_PATH).exists():
+  import db_datagen # haha don't actually use in production
+
+connection = sqlite3.connect()
 cursor = connection.cursor()
 cursor.execute("SELECT plug_id, SUM(power) FROM Data GROUP BY plug_id")
 
