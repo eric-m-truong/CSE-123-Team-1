@@ -9,20 +9,18 @@ from bokeh.transform import cumsum
 
 import sqlite3
 
-DATA_DIR = '../data/'
-DB_NAME = 'data.sqlite'
-DB_PATH = DATA_DIR + DB_NAME
+from db.connection import connect
+from db.util import get_sum
 
-if not Path(DB_PATH).exists():
-  import db_datagen # haha don't actually use in production
+# if not Path(util.DB_PATH).exists():
+#   import script.db_datagen # haha don't actually use in production
 
-connection = sqlite3.connect()
-cursor = connection.cursor()
-cursor.execute("SELECT plug_id, SUM(power) FROM Data GROUP BY plug_id")
+con = connect()
+sum = get_sum(con)
 
-x = {plug: tot_pwr for plug, tot_pwr in cursor.fetchall()}
+x = {plug: tot_pwr for plug, tot_pwr in sum}
 
-connection.close()
+con.close()
 
 # Data
 
