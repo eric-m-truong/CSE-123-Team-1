@@ -23,7 +23,7 @@ shift
 trap 'kill $(jobs -p)' EXIT
 
 (cd $(dirname $0) && mosquitto -c mosquitto.conf) &
-(cd $(dirname $0) && python datagen.py $plug_num) &
+(cd $(dirname $0) && python mqtt_datagen.py $plug_num) &
 $@ &
 
 wait
