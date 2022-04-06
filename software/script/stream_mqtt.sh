@@ -3,7 +3,7 @@
 if [ "$#" -lt 2 ]; then
   name=$(basename "$0")
   echo "run a local mqtt and generate data on a channel"
-  echo "usage: $name # plugs [args...]"
+  echo "usage: $name num_plugs [args...]"
   exit 1
 fi
 
@@ -23,7 +23,7 @@ shift
 trap 'kill $(jobs -p)' EXIT
 
 (cd $(dirname $0) && mosquitto -c mosquitto.conf) &
-(cd $(dirname $0) && python datagen.py $plug_num) &
+(cd $(dirname $0) && python mqtt_datagen.py $plug_num) &
 $@ &
 
 wait
