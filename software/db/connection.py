@@ -3,16 +3,10 @@ from pathlib import Path
 
 from db import query
 
-
-DATA_DIR = '../data/'
-DB_NAME = 'data.sqlite'
-DB_PATH = DATA_DIR + DB_NAME
-
-# connect = lambda: sqlite3.connect(DB_NAME)
-
+from server.data.db_path import *
 
 def connect():
-  con = sqlite3.connect(DB_NAME)
+  con = sqlite3.connect(DB_PATH)
   try:
     init(con) # fails if already exists
   except sqlite3.OperationalError:

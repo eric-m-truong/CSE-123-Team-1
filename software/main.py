@@ -1,14 +1,18 @@
 #!/usr/bin/python3
 
-from operator import truediv
 import sqlite3
-from sqlite_functions import *
 from datetime import datetime
 import paho.mqtt.client as mqtt
 
+from db.util import *
+from db.table_classes import *
+from db.query import *
+from db.connection import connect
+from server.data.db_path import *
+
 # Constants
-DATA_DIR = '../data/'
-DB_NAME = 'data.sqlite'
+# DATA_DIR = '../data/'
+# DB_NAME = 'data.sqlite'
 mqttBroker = "broker.hivemq.com"
 
 ######################################################
@@ -25,15 +29,16 @@ def on_message(client, userdata, message):
     # Parse MAC Address from topic.
     mac_addr = message.topic.split('/').pop()   # Grabs the last element
     
-    connection = sqlite3.connect(DATA_DIR + DB_NAME)
+    print(DB_PATH)
+    connection = connect()
     
     # If this plug doesn't exist in the database, add it
-    if not db_get_plug_by_mac(connection.cursor(), mac_addr):   # If returns an empty list
-        db_add_plug(connection.cursor(), Plug(mac_addr, True))  # Add a plug into the database
+    if not get_plug_by_mac(connection.cursor(), mac_addr):   # If returns an empty list
+        add_plug(connection.cursor(), Plug(mac_addr, True))  # Add a plug into the database
 
     # Add the datapoint
     new_datapoint = Datapoint(str(datetime.now()), mac_addr, msg_list[0])
-    db_add_data(connection.cursor(), new_datapoint)
+    add_data(connection.cursor(), new_datapoint)
 
     connection.commit()
     connection.close()
@@ -53,18 +58,15 @@ def on_message(client, userdata, message):
 #-------------
 
 # SQLite
-connection = sqlite3.connect(DATA_DIR + DB_NAME)  #TODO Uncomment to use an actual database
-# connection = sqlite3.connect(":memory:")            #TODO Remove this DEBUG line
-cursor = connection.cursor()
-db_init(cursor)
-connection.commit() # SQLite
-connection.close()  # SQLite
+connection = connect()
+connection.commit()
+connection.close()
 
 # MQTT
 client = mqtt.Client("Server")
 client.connect(mqttBroker)
 client.loop_start()  # Runs a loop in a background thread
-client.subscribe("plug/#")
+client.subscribe("plux/data/#")
 client.on_message=on_message
 
 #--------------------------
@@ -77,7 +79,8 @@ while (running):
     
 # Graceful Close
 client.loop_stop()  # MQTT
-
+#TODO Maybe change this to the blocking version since
+#TODO we don't need to do any graceful closing.
 
 
 
