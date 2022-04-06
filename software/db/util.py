@@ -1,8 +1,7 @@
 from dataclasses import asdict
 
-from . import table_classes
-from . import query
-from .connection import execute
+from db import table_classes, query
+from db.connection import execute
 
 
 add_plug = lambda con, plug: execute(con, query.INS_PLUG, asdict(plug))

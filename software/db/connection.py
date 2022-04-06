@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-from . import query
+from db import query
 
 
 DATA_DIR = '../data/'

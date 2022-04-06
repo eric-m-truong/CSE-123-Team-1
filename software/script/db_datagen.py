@@ -2,8 +2,8 @@ import sqlite3
 from random import random, randint, choice
 from datetime import datetime
 
-import sys
-sys.path.append('..') # needed for db
+# import sys
+# sys.path.append('..') # needed for db
 
 from db import util, table_classes
 from db.connection import connect
