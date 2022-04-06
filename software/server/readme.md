@@ -1,5 +1,5 @@
-`static` houses bokeh plots generated from db
-`templates` are filled in and sent to the client
+- `static` houses bokeh plots generated from db
+- `templates` are filled in and sent to the client
 
 server paths are defined by the decorators above methods in `handler.py`:
 
