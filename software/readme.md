@@ -9,14 +9,14 @@
 all python scripts that depend on libs in this dir must be run from this dir
 
 main should create threads:
-- flask server by calling a (yet undefined) `run` function `server.handler`
-- an mqtt client to listen for data from the plugs
+- [ ] flask server by calling a (yet undefined) `run` function `server.handler`
+- [ ] an mqtt client to listen for data from the plugs
 
 the server needs to:
-- efficiently store data from the mqtt messages
-- send ctrl sigs to plugs after a user visits / posts to a url that sends a
+- [ ] efficiently store data from the mqtt messages
+- [ ] send ctrl sigs to plugs after a user visits / posts to a url that sends a
   control signal
-- be easily deployable
+- [ ] be easily deployable
 
 it would be nice if the server also:
 - server periodically optimizes / does some calculations e.g. when asking for a
