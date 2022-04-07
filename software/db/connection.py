@@ -3,7 +3,9 @@ from pathlib import Path
 
 from db import query
 
-from server.data.db_path import *
+
+DB_PATH = f'{Path.cwd()}/data.sqlite'
+
 
 def connect():
   con = sqlite3.connect(DB_PATH)
