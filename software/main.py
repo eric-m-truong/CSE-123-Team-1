@@ -8,7 +8,7 @@ from db.util import *
 from db.table_classes import *
 from db.query import *
 from db.connection import connect
-from server.data.db_path import *
+from server.data.db_path import DB_PATH
 
 # Constants
 # DATA_DIR = '../data/'
@@ -29,16 +29,15 @@ def on_message(client, userdata, message):
     # Parse MAC Address from topic.
     mac_addr = message.topic.split('/').pop()   # Grabs the last element
     
-    print(DB_PATH)
     connection = connect()
     
     # If this plug doesn't exist in the database, add it
-    if not get_plug_by_mac(connection.cursor(), mac_addr):   # If returns an empty list
-        add_plug(connection.cursor(), Plug(mac_addr, True))  # Add a plug into the database
+    if not get_plug_by_mac(connection, mac_addr).fetchall():   # If returns an empty list
+        add_plug(connection, Plug(mac_addr, True))  # Add a plug into the database
 
     # Add the datapoint
     new_datapoint = Datapoint(str(datetime.now()), mac_addr, msg_list[0])
-    add_data(connection.cursor(), new_datapoint)
+    add_data(connection, new_datapoint)
 
     connection.commit()
     connection.close()
