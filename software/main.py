@@ -4,15 +4,10 @@ import sqlite3
 from datetime import datetime
 import paho.mqtt.client as mqtt
 
-from db.util import *
-from db.table_classes import *
-from db.query import *
+from db import table_classes, util
 from db.connection import connect
-from server.data.db_path import DB_PATH
 
 # Constants
-# DATA_DIR = '../data/'
-# DB_NAME = 'data.sqlite'
 mqttBroker = "broker.hivemq.com"
 
 ######################################################
@@ -28,15 +23,18 @@ def on_message(client, userdata, message):
 
     # Parse MAC Address from topic.
     mac_addr = message.topic.split('/').pop()   # Grabs the last element
-    
+
     connection = connect()
-    
+
     # If this plug doesn't exist in the database, add it
-    if not get_plug_by_mac(connection, mac_addr).fetchall():   # If returns an empty list
-        add_plug(connection, Plug(mac_addr, True))  # Add a plug into the database
+    if not util.get_plug_by_mac(connection, mac_addr).fetchall():
+        plug = table_classes.Plug(mac_addr, True)
+        util.add_plug(connection, plug)  # Add a plug into the database
 
     # Add the datapoint
-    new_datapoint = Datapoint(str(datetime.now()), mac_addr, msg_list[0])
+    new_datapoint = table_classes.Datapoint(str(datetime.now()),
+                                            mac_addr,
+                                            msg_list[0])
     add_data(connection, new_datapoint)
 
     connection.commit()
