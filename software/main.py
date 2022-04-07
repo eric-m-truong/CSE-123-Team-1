@@ -27,7 +27,7 @@ def on_message(client, userdata, message):
     connection = connect()
 
     # If this plug doesn't exist in the database, add it
-    if not util.get_plug_by_mac(connection, mac_addr).fetchall():
+    if not util.get_plug_by_mac(connection, mac_addr):
         plug = table_classes.Plug(mac_addr, True)
         util.add_plug(connection, plug)  # Add a plug into the database
 
