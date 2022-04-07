@@ -35,7 +35,7 @@ def on_message(client, userdata, message):
     new_datapoint = table_classes.Datapoint(str(datetime.now()),
                                             mac_addr,
                                             msg_list[0])
-    add_data(connection, new_datapoint)
+    util.add_data(connection, new_datapoint)
 
     connection.commit()
     connection.close()
