@@ -56,7 +56,6 @@ def on_message(client, userdata, message):
 
 # SQLite
 connection = connect()
-connection.commit()
 connection.close()
 
 # MQTT
