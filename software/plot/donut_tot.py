@@ -48,5 +48,4 @@ def generate():
   p.axis.visible=False
   p.grid.grid_line_color = None
 
-  # module_name = __name__.split('.')[0]
   return file_html(p, CDN)
