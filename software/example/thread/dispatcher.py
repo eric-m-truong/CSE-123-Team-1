@@ -1,29 +1,13 @@
-from multiprocessing import Semaphore
-import signal, sys
 from os import wait
 import subprocess
 import shlex
 import shutil
-import time
 
-from numpy import true_divide
-# from subprocess import run, Popen, PIPE
+tuplize = lambda x: (subprocess.Popen(x, shell=True).pid, x)
+acquire_new_pid = lambda x: tuplize(x[1])
 
-child_echo = lambda x: (subprocess.Popen(x, shell=True).pid, x)
-acquire_new_pid = lambda x: child_echo(x[1])
-
-# (pid, cmd)
-
-# fork 2 echo proccesses and save their pids
-ps = [child_echo("python3 echo_loop.py"), child_echo("python3 echo_loop.py")]
-
-print(ps)
-
-# for(ever)
-#   pid = wait(NULL)
-#   figure out which process had that pid
-#   restart the process
-#   save the new pid
+ps = [tuplize("python3 echo_loop.py"),
+      tuplize("python3 echo_loop.py")]
 
 while (True):
     pid, ret = wait()
