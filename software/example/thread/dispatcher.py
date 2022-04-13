@@ -2,16 +2,20 @@ from os import wait
 import subprocess
 import shlex
 import shutil
+from collections import namedtuple
 
-tuplize = lambda x: (subprocess.Popen(x, shell=True).pid, x)
-acquire_new_pid = lambda x: tuplize(x[1])
+Process = namedtuple("Process", ['pid', 'cmd'])
+tuplize = lambda x: Process(subprocess.Popen(x, shell=True).pid, x)
+acquire_new_pid = lambda x: tuplize(x.cmd)
 
-ps = [tuplize("python3 echo_loop.py"),
-      tuplize("python3 echo_loop.py")]
+ss = ["python3 echo_loop.py",
+      "python3 echo_loop.py"]
+ps = [tuplize(s) for s in ss] #  evaluating this line starts processes
 
-while (True):
-    pid, ret = wait()
-    for i in range(len(ps)):
-        p = ps[i]
-        if p[0] == pid:
-            ps[i] = acquire_new_pid(p)
+while (status := wait()) != -1:
+  pid, ret = status
+  for i, p in enumerate(ps):
+    if p.pid == pid:
+      print("restarted", p.pid, end=" ")
+      ps[i] = acquire_new_pid(p)
+      print("as", ps[i].pid)
