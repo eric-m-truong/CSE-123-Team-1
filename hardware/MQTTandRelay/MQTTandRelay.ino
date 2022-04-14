@@ -48,6 +48,21 @@ void setup() {
 
 }
 
+void my_strncpy (char* dst, char* src, size_t n) {
+  if (dst == NULL) { Serial.println("my_strncpy: dst is NULL"); }
+  if (src == NULL) { Serial.println("my_strncpy: src is NULL"); }
+
+  for (int i = 0; i < n; ++i) {
+    if (src[i] == '&') {
+      dst[i] = '\0';
+      break;
+    }
+    else {
+      dst[i] = src[i];
+    }
+  }
+}
+
 void loop() {
 
   WiFiClient client=server.available();
@@ -55,19 +70,29 @@ void loop() {
   if(client)
   {
     String request = client.readStringUntil('\r');
-    
+
+    // Get Request
     char request_arr[request.length() + 1];
     for (int i = 0; i < request.length(); ++i) {
       request_arr[i] = request[i];
     }
-    request_arr[request.length()] = '\0';
-    
+    request_arr[request.length()] = '\0';   
     Serial.println(request);
+
+    // Parse SSID
     int index = request.indexOf("wifi_name=");
     if(index != -1){
-      strncpy(wifi_id, &request_arr[index], SSID_MAX_LEN);
+      my_strncpy(wifi_id, &request_arr[index], SSID_MAX_LEN);
       Serial.println("SSID filled");
       Serial.println(wifi_id);
+    }
+
+    // Parse Password
+    index = request.indexOf("wifi_pass=");
+    if (index != -1) {
+      my_strncpy(wifi_password, &request_arr[index], PASS_MAX_LEN);
+      Serial.println("Password filled");
+      Serial.println(wifi_password);
     }
 
     delay(20);
