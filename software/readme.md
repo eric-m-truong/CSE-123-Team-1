@@ -14,7 +14,7 @@ main should create threads:
 
 the server needs to:
 - [ ] efficiently store data from the mqtt messages
-- [ ] send ctrl sigs to plugs after a user visits / posts to a url that sends a
+- [x] send ctrl sigs to plugs after a user visits / posts to a url that sends a
   control signal
 - [ ] be easily deployable
 
