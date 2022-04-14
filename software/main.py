@@ -15,17 +15,17 @@ logging.basicConfig(format=format, level=logging.DEBUG)
 
 """
 1. Delete db
-2. Init db w/ script/db_datagen.py
+2. Init db w/ db/datagen.py
 3. Start mosquitto
-4. Start script/mqtt_datagen.py
+4. Start mqtt/datagen.py
 5. Start mqtt listener
 6. Start flask web server
 """
 
 PLUG_NUM = 4
 
-# Path(DB_PATH).unlink(missing_ok=True)
-# dbgen.generate(PLUG_NUM)
+Path(DB_PATH).unlink(missing_ok=True)
+dbgen.generate(PLUG_NUM)
 
 es = [lambda: exec('mosquitto', ['-c', 'script/mosquitto.conf']),
       lambda: execfn(mqttgen.run, [PLUG_NUM]),
