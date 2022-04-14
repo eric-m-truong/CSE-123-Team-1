@@ -3,6 +3,7 @@ from flask import Flask, redirect, url_for, request, render_template, \
 import paho.mqtt.client as mqtt
 
 from plot import donut_tot, stacked
+from db.connection import connect, execute
 
 
 app = Flask(__name__)
@@ -62,11 +63,19 @@ def toggle_form():
 
 
 @app.route("/")
-def ls():
+def root():
   links = []
   for r in app.url_map.iter_rules():
     links.append((str(r), r.endpoint))
-  return render_template("ls.html", links=links)
+  return render_template("sitemap.html", links=links)
+
+
+@app.route("/lp")
+def list_plugs():
+  con = connect()
+  plugs = [(alias if alias else mac, status)
+      for mac, alias, status in execute(con, "SELECT * FROM Plugs").fetchall()]
+  return render_template("lp.html", plugs=plugs)
 
 
 if __name__ == '__main__':
