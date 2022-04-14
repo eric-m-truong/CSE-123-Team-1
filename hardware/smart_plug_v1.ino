@@ -1,3 +1,6 @@
+#include <WiFi.h>
+#include <PubSubClient.h>
+
 #include "ACS712.h"
 
 // Sources: https://create.arduino.cc/projecthub/SurtrTech/measure-any-ac-current-with-acs712-70aa85
@@ -8,9 +11,56 @@
 #define CUR_SENSOR A2
 #define WALL_FREQ 60
 #define WALL_VOLT 120                // US wall voltage standard
-#define DELAY_MS 100                 // adjust delay as necessary
+#define DELAY_MS 500                 // adjust delay as necessary
+#define MSG_MAX 50
 
 ACS712  ACS(A2, 5.0, 4095, 66);      // call ACS712.h constructor for 30A variant
+
+//MQTT
+const char* ssid = "iPhone";
+const char* password = "nathannn";
+const char* mqttServer = "broker.hivemq.com";
+const int mqttPort = 1883;
+const char* mqttUser = "";
+const char* mqttPassword = "";
+char msg[MSG_MAX];                   // buffer for msg
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+//void init_pin() {
+//  pinMode(15, OUTPUT);
+//}
+
+void mqtt_setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.println("Connecting to WiFi..");
+  }
+
+  Serial.println("Connected to the WiFi network");
+
+  client.setServer(mqttServer, mqttPort);
+
+  while (!client.connected()) {
+    Serial.println("Connecting to MQTT...");
+
+  if (client.connect("", mqttUser, mqttPassword )) {
+
+    Serial.println("connected");
+
+  } else {
+
+  Serial.print("failed with state ");
+  Serial.print(client.state());
+  delay(2000);
+
+    }
+  }
+}
 
 void setup() { 
   Serial.begin(115200);              // set up baud rate for debugging
@@ -19,25 +69,20 @@ void setup() {
   Serial.println(__FILE__);
 
   ACS.autoMidPoint(1);               // change this value to refine accuracy
-  
-//  Serial.print("MidPoint: ");      // debug: print ADC midpoint and noise measurements
-//  Serial.print(ACS.getMidPoint());
-//  Serial.print(". Noise mV: ");
-//  Serial.println(ACS.getNoisemV());
-
+  // init_pin();
+  // digitalWrite(15, HIGH);
+  // delay(1000)
 }
 
 void loop() {
   int mA = ACS.mA_AC(WALL_FREQ);           // measure AC current
   float watts = (WALL_VOLT * mA) / 1000;   // calculate power
-  
-//  Serial.print("mA: ");         // debug: print current
-//  Serial.println(mA);
-//  Serial.print(". Form factor: ");
-//  Serial.println(ACS.getFormFactor());
 
-  Serial.print("Watts: ");        // print power
-  Serial.println(watts);
+  char msg[MSG_MAX];                       // buffer for msg
+  memset(msg, "\0", MSG_MAX);
+  sprintf(msg, "%f\n", watts);
 
-  delay(DELAY_MS); 
+  client.loop();                           // MQTT message publishing
+  client.publish("esp32/esp32test", "Hello from ESP32learning");
+  delay(DELAY_MS);
 }
