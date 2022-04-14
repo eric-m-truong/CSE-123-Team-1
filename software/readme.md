@@ -9,8 +9,8 @@
 all python scripts that depend on libs in this dir must be run from this dir
 
 main should create threads:
-- [ ] flask server by calling a (yet undefined) `run` function `server.handler`
-- [ ] an mqtt client to listen for data from the plugs
+- [x] flask server by calling a (yet undefined) `run` function `server.handler`
+- [x] an mqtt client to listen for data from the plugs
 
 the server needs to:
 - [ ] efficiently store data from the mqtt messages
@@ -34,5 +34,6 @@ server|flask webserver module that serves html pages
 db|module for interacting with db file
 script|utility files that can generate plug data or aid in testing
 plot|module that contains various bokeh plots to be used in html webpages
+mqtt|scripts intended primarily to interact with and maintain an mqtt connection
 
 future: test dir for testing aspects of server?

@@ -2,7 +2,7 @@ from flask import Flask, redirect, url_for, request, render_template, \
                   send_from_directory
 import paho.mqtt.client as mqtt
 
-from plot import donut_tot
+from plot import donut_tot, stacked
 
 
 app = Flask(__name__)
@@ -16,6 +16,11 @@ def serve_static(path):
 @app.route('/donut_tot')
 def serve_donut_tot():
   return donut_tot.generate()
+
+
+@app.route('/stacked')
+def serve_stacked():
+  return stacked.generate()
 
 
 @app.route('/stream/<plug_num>', methods=['GET'])
@@ -54,6 +59,14 @@ def toggle_form():
     return '', 204 # return empty response
   else:
     return post
+
+
+@app.route("/")
+def ls():
+  links = []
+  for r in app.url_map.iter_rules():
+    links.append((str(r), r.endpoint))
+  return render_template("ls.html", links=links)
 
 
 if __name__ == '__main__':
