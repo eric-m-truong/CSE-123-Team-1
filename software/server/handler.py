@@ -60,6 +60,13 @@ def toggle_form():
   else:
     return post
 
+# https://stackoverflow.com/a/13161594
+@app.route("/")
+def ls():
+  links = []
+  for r in app.url_map.iter_rules():
+    links.append((str(r), r.endpoint))
+  return render_template("ls.html", links=links)
 
 if __name__ == '__main__':
   app.run(debug = True)
