@@ -29,7 +29,7 @@ it would be nice if the server also:
 dir | purpose
 ----|--------
 example|complete proof of concet files that can be used to make other things
-mockup|mockups that illustrate what a complete user-facing page might look like
+client|mockups that illustrate what a complete user-facing page might look like
 server|flask webserver module that serves html pages
 db|module for interacting with db file
 script|utility files that can generate plug data or aid in testing
