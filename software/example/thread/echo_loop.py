@@ -1,9 +1,11 @@
 import time
-# import sys
+import os
+from random import random
 
-# prefix = sys.argv[1] if len(sys.argv) == 2 else 'x'
+# print(os.getpid(), i)
+for i in range(2):
+  print(os.getpid(), i)
+  # time.sleep(random())
+  time.sleep(1)
 
-for i in range(3):
-    # print(prefix, i)
-    print(i)
-    time.sleep(1)
+print(os.getpid(), "exit")
