@@ -1,0 +1,18 @@
+<table>
+  <tr>
+    <th>Plug</th>
+    <th>Status</th>
+    <th>Toggle</th>
+  </tr>
+  {% for plug, status in plugs %}
+  <tr>
+    <td>
+      <a href="{{ url_for('stream', plug_num=loop.index0) }}">{{ plug }}</a>
+    </td>
+    <td>{{ status }}</td>
+    <td>
+      <a href="{{ url_for('toggle', plug_num=loop.index0) }}">Toggle</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>

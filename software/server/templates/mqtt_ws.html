@@ -41,7 +41,7 @@
   window.crypto.getRandomValues(rBuf);
   const r = new DataView(rBuf.buffer).getUint32();
 
-  client = new Paho.MQTT.Client("localhost", Number(8883), "plug0-"+r);
+  client = new Paho.MQTT.Client("localhost", Number(8883), "plug-"+r);
   client.onMessageArrived = onMessageArrived;
   client.connect({onSuccess:onConnect});
 
