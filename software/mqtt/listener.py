@@ -17,7 +17,7 @@ csv_to_list = lambda csv_str : list(map(str.strip, csv_str.split(',')))
 def run():
   def on_message(client, userdata, message):
     ts, pwr = csv_to_list(message.payload.decode("utf-8"))
-    mac_addr = message.topic.split('/').pop()   # Grabs the MAC Address from the MQTT topic
+    mac_addr = message.topic.split('/')[-1]   # Grabs the MAC Address from the MQTT topic
     logging.debug(f'\n ts:  {ts}\n pwr: {pwr}\n mac: {mac_addr}\n')
 
     con = connection.connect()
