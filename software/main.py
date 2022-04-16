@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from pathlib import Path
 import logging
 
@@ -24,11 +26,10 @@ logging.basicConfig(format=format, level=logging.DEBUG)
 
 PLUG_NUM = 4
 
-Path(DB_PATH).unlink(missing_ok=True)
+# Path(DB_PATH).unlink(missing_ok=True)
 dbgen.generate(PLUG_NUM)
 
-es = [lambda: exec('mosquitto', ['-c', 'script/mosquitto.conf']),
-      lambda: execfn(mqttgen.run, [PLUG_NUM]),
+es = [lambda: execfn(mqttgen.run, [PLUG_NUM]),
       lambda: execfn(listener.run),
       lambda: exec('flask', ['run'], env={'FLASK_APP': 'server/handler'})
      ]
