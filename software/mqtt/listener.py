@@ -1,7 +1,6 @@
 import paho.mqtt.client as mqtt
 from sys import exit
 import logging
-import json
 
 
 """
@@ -11,12 +10,16 @@ todo:
   - add MAC to mqtt_datagen
 """
 
+# Parses CSV into a list
+csv_to_list = lambda csv_str : list(map(str.strip, csv_str.split(',')))
 
 def run():
   def on_message(client, userdata, message):
-    payload = json.loads(message.payload)     # Converts the JSON string to a python dictionary
-    mac_addr = message.topic.split('/').pop() # Grabs the MAC Address from the MQTT topic
-    logging.debug(f'\n ts:  {payload["timestamp"]}\n pwr: {payload["power"]}\n mac: {mac_addr}\n')
+    csv_list = csv_to_list(message.payload.decode("utf-8"))
+    ts = csv_list[0]          # Timestamp
+    pwr = float(csv_list[1])  # Power
+    mac_addr = message.topic.split('/').pop()   # Grabs the MAC Address from the MQTT topic
+    logging.debug(f'\n ts:  {ts}\n pwr: {pwr}\n mac: {mac_addr}\n')
 
 
   # init client
