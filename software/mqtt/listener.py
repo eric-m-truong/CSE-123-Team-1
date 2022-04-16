@@ -1,6 +1,7 @@
 import paho.mqtt.client as mqtt
 from sys import exit
 import logging
+from db import connection, util, table_classes
 
 
 """
@@ -15,11 +16,20 @@ csv_to_list = lambda csv_str : list(map(str.strip, csv_str.split(',')))
 
 def run():
   def on_message(client, userdata, message):
-    csv_list = csv_to_list(message.payload.decode("utf-8"))
-    ts = csv_list[0]          # Timestamp
-    pwr = float(csv_list[1])  # Power
+    ts, pwr = csv_to_list(message.payload.decode("utf-8"))
     mac_addr = message.topic.split('/').pop()   # Grabs the MAC Address from the MQTT topic
     logging.debug(f'\n ts:  {ts}\n pwr: {pwr}\n mac: {mac_addr}\n')
+
+    con = connection.connect()
+
+    # If this plug doesn't exist in the database, add it
+    if not util.get_plug_by_mac(con, mac_addr):
+      plug = table_classes.Plug(mac_addr, is_on=True)   # Since the plug sent a message, it should be on
+      util.add_plug(con, plug)                          # Add the plug into the database
+
+    # Add the datapoint
+    new_datapoint = table_classes.Datapoint(ts, mac_addr, pwr)
+    util.add_data(con, new_datapoint)
 
 
   # init client
