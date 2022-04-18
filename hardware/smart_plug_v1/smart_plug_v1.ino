@@ -1,4 +1,4 @@
-#include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 
 #include "ACS712.h"
@@ -8,19 +8,19 @@
 #define RELAY 27
 
 // Constants
-#define WALL_FREQ 60                 // US = 60hz
-#define WALL_VOLT 120                // US = 120 V
-#define DELAY_MS 100                 // adjust this to change data transmit rate
-#define MAX_RETRY 30                 // adjust this to determine how many times ESP32 tries to connect to network
-#define MAX_MSG 30                   // adjust this to determine max MQTT message length
+#define WALL_FREQ 60                  // US = 60hz
+#define WALL_VOLT 120                 // US = 120 V
+#define DELAY_MS 1000                 // adjust this to change data transmit rate
+#define MAX_RETRY 30                  // adjust this to determine how many times ESP32 tries to connect to network
+#define MAX_MSG 30                    // adjust this to determine max MQTT message length
 
 // Network
 const char* ssid         = "iPhone";
 const char* password     = "yaaabruh";
 
 // MQTT
-const char* mqttServer   = "mqtts://mosquitto.projectplux.info/";
-const int   mqttPort     = 8883;
+const char* mqttServer   = "mosquitto.projectplux.info";
+const int   mqttPort     = 1883;
 const char* mqttUser     = "max";
 const char* mqttPassword = "max";
 
@@ -57,10 +57,10 @@ int mqtt_setup() {
   client.setServer(mqttServer, mqttPort); // set destination server
   while (!client.connected()) {
     Serial.println("mqtt_setup(): Connecting to MQTT...");
-    if (client.connect("", mqttUser, mqttPassword)) {
+    if (client.connect("ESP32-0", mqttUser, mqttPassword)) {
       Serial.println("mqtt_setup(): client connected");
     } else {
-      Serial.print("failed with state ");
+      Serial.print("mqtt_setup(): failed with state ");
       Serial.println(client.state());
       delay(1000);
     }
@@ -99,8 +99,12 @@ void loop() {
   client.loop();
   sprintf(mqtt_msg, "%d", mA);
   int ret = client.publish("MQTTPS", mqtt_msg, false);  // send power data as string to MQTT server
-  if (ret) {
+  if (!ret) {
     Serial.println("loop(): unable to publish MQTT message");          
+  } else {
+    Serial.print("Data: ");
+    Serial.print(mA);
+    Serial.println("| loop(): MQTT message published");
   }
   memset(mqtt_msg, '\0', MAX_MSG);                      // reset static buffer
   delay(DELAY_MS); 
