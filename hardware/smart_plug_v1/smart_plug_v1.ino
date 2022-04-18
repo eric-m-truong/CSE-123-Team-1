@@ -13,19 +13,25 @@
 #define DELAY_MS 1000                 // adjust this to change data transmit rate
 #define MAX_RETRY 30                  // adjust this to determine how many times ESP32 tries to connect to network
 #define MAX_MSG 30                    // adjust this to determine max MQTT message length
+#define MAC_ADDR_LEN 17               // length of MAC address in characters (includes colons)
 
 // Network
 const char* ssid         = "iPhone";                      // SSID of network to be connected to
 const char* password     = "yaaabruh";                    // password of network to be connected to
 
 // MQTT
-const char* mqttServer   = "mosquitto.projectplux.info";
-const int   mqttPort     = 1883;                          // 1883 = insecure port, 8883 = secure port (via TLS)
-const char* mqttUser     = "max";
-const char* mqttPassword = "max";
+const char* mqttDataTopic    = "plux/data/";                  // publishing topic for plug, will be cominbed with MAC address later
+const char* mqttCtrlTopic    = "plux/control/";               // subscribing topic for plug, will be cominbed with MAC address later
+const char* mqttServer       = "mosquitto.projectplux.info";
+const int   mqttPort         = 1883;                          // 1883 = insecure port, 8883 = secure port (via TLS)
+const char* mqttUser         = "max";
+const char* mqttPassword     = "max";
 
 // Static variables
-static char mqtt_msg[MAX_MSG]; // buffer for MQTT message
+static char mqtt_msg[MAX_MSG];                                                   // buffer for MQTT message
+static char mac_addr[MAC_ADDR_LEN];                                              // buffer for MAC address (48 bits/8 = 6 bytes);
+static char mqttDataTopicStr[10 + MAC_ADDR_LEN + 1];                                    // buffer for data topic name
+static char mqttCtrlTopicStr[13 + MAC_ADDR_LEN + 1];                                    // buffer for ctrl topic name
 
 ACS712  ACS(A2, 5.0, 4095, 66);      // call ACS712.h constructor for 30A variant
 WiFiClient espClient;                // call WiFi constructor
@@ -34,11 +40,13 @@ PubSubClient client(espClient);      // call MQTT constructor
 // helper function for connecting to Internet
 // source: https://randomnerdtutorials.com/esp32-useful-wi-fi-functions-arduino/
 int network_setup() {
-  WiFi.mode(WIFI_STA);
+  
+  WiFi.mode(WIFI_STA);                                              // WiFi connection process
   WiFi.begin(ssid, password);
   Serial.print("network_setup(): Connecting to WiFi ..");
+  
   int cnt_retry = 0;
-  while (WiFi.status() != WL_CONNECTED && (cnt_retry < MAX_RETRY)) {
+  while (WiFi.status() != WL_CONNECTED && (cnt_retry < MAX_RETRY)) { // attempt connection multiple times
     Serial.print('.');
     delay(1000);
     cnt_retry++;
@@ -50,14 +58,15 @@ int network_setup() {
     Serial.println(WiFi.localIP());
     return 0;
   }
+  
 }
 
 // initialization of MQTT connection
 int mqtt_setup() {
-  client.setServer(mqttServer, mqttPort); // set destination server
+  client.setServer(mqttServer, mqttPort);       // set destination server
   while (!client.connected()) {
     Serial.println("mqtt_setup(): Connecting to MQTT...");
-    if (client.connect("ESP32-0", mqttUser, mqttPassword)) {
+    if (client.connect("", mqttUser, mqttPassword)) {
       Serial.println("mqtt_setup(): client connected");
     } else {
       Serial.print("mqtt_setup(): failed with state ");
@@ -65,52 +74,84 @@ int mqtt_setup() {
       delay(1000);
     }
   }
-  client.publish("MQTTPS", "mqtt_stetup(): complete");
+
+  sprintf(mqttDataTopicStr, "%s%s", mqttDataTopic, mac_addr);   // print concatenated string to data topic buffer
+  sprintf(mqttCtrlTopicStr, "%s%s",  mqttCtrlTopic, mac_addr);   // print concatenated string to control topic buffer
+  
+//  client.publish(mqttDataTopicStr, "mqtt_stetup(): complete");  // complete connection to MQTT data topic
+  Serial.println("mqtt_stetup(): complete");
   return 0;
 }
 
 // initialization function for ESP32
 // source: https://github.com/RobTillaart/ACS712/blob/master/examples/ACS712_20_AC/ACS712_20_AC.ino
 void setup() { 
-  Serial.begin(115200);              // set up baud rate for debugging
-  pinMode(CUR_SENSOR, INPUT);        // set CUR_SENSOR to input mode
-  pinMode(RELAY, OUTPUT);            // set RELAY pin to output mode
+  Serial.begin(115200);                 // set up baud rate for debugging
+  pinMode(CUR_SENSOR, INPUT);           // set CUR_SENSOR to input mode
+  pinMode(RELAY, OUTPUT);               // set RELAY pin to output mode
   Serial.println(__FILE__);
-
-  digitalWrite(RELAY, HIGH);         // debug: set relay to be closed.
   
-  int ret = network_setup();         // attempt network connection
+  int ret = network_setup();            // attempt network connection
   if (ret) {
     Serial.println("setup(): unable to connect to network");
     return;
   }
-
-  ret = mqtt_setup();                // attempt MQTT server connection
+  strncpy(mac_addr, WiFi.macAddress().c_str(), MAC_ADDR_LEN); // save MAC address as string
+  Serial.print("setup(): MAC address - ");
+  Serial.println(WiFi.macAddress());
+  
+  ret = mqtt_setup();                   // attempt MQTT server connection
   if (ret) {
     Serial.println("setup(): unable to connect to MQTT server");
     return;
+  } else {
+    Serial.print("setup(): publishing to ");
+    Serial.println(mqttDataTopicStr);
+  }
+
+  ret = client.subscribe(mqttCtrlTopicStr, 0); // subscribe to MQTT control topic
+  if (!ret) {
+    Serial.println("setup(): unable to subscribe to MQTT server topic");
+    return;
+  } else {
+    Serial.print("setup(): subscribed to ");
+    Serial.println(mqttCtrlTopicStr);
   }
   
-  ACS.autoMidPoint(1);               // change this value to refine accuracy
+  ACS.autoMidPoint(1);                  // change this value to refine accuracy
 }
 
-// main function for power monitoring and data transmission
+// helper callback function for receiving messages from server
+// source: https://pubsubclient.knolleary.net/api#callback
+void msg_receive(char *topic, byte* payload, unsigned int length) {
+  // we don't care about topic or length, only payload
+  int msg = *payload;
+  switch (msg) {
+    case 1: // turning ON circuit
+      digitalWrite(RELAY, HIGH);
+      return;
+    case 2: // turning OFF circuit
+      digitalWrite(RELAY, LOW);
+      return;
+  }
+}
+
+// main function for power monitoring and data transmission/reception
 // sources: https://randomnerdtutorials.com/esp32-mqtt-publish-subscribe-arduino-ide/
 void loop() {
-  int mA = ACS.mA_AC(WALL_FREQ);                        // measure AC current
-  float watts = (WALL_VOLT * mA) / 1000;                // calculate power
-  client.loop();
-  sprintf(mqtt_msg, "%d", mA);
+  int mA = ACS.mA_AC(WALL_FREQ);                             // measure AC current
+  float watts = (WALL_VOLT * mA) / 1000;                     // calculate power
+  client.loop();                                             // keep listening on MQTT topic
+  sprintf(mqtt_msg, "%d", mA);                               // convert number to string in string buffer
   
-  int ret = client.publish("MQTTPS", mqtt_msg, false);  // send power data as string to MQTT server
+  int ret = client.publish(mqttDataTopicStr, mqtt_msg, false);  // send power data as string to MQTT data topic
   if (!ret) {
     Serial.println("loop(): unable to publish MQTT message");          
   } else {
     Serial.print("Data: ");
     Serial.print(mA);
-    Serial.println("| loop(): MQTT message published");
+    Serial.println(" | loop(): MQTT message published");
   }
-  memset(mqtt_msg, '\0', MAX_MSG);                      // reset static buffer
-  
+  memset(mqtt_msg, '\0', MAX_MSG);                           // reset static buffer
   delay(DELAY_MS); 
 }
