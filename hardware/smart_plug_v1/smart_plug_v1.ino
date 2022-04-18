@@ -4,7 +4,7 @@
 #include "ACS712.h"
 
 // ESP32 Pins
-#define CUR_SENSOR A2                // adjust as necessary
+#define CUR_SENSOR A2                 // adjust pins as necessary
 #define RELAY 27
 
 // Constants
@@ -15,12 +15,12 @@
 #define MAX_MSG 30                    // adjust this to determine max MQTT message length
 
 // Network
-const char* ssid         = "iPhone";
-const char* password     = "yaaabruh";
+const char* ssid         = "iPhone";                      // SSID of network to be connected to
+const char* password     = "yaaabruh";                    // password of network to be connected to
 
 // MQTT
 const char* mqttServer   = "mosquitto.projectplux.info";
-const int   mqttPort     = 1883;
+const int   mqttPort     = 1883;                          // 1883 = insecure port, 8883 = secure port (via TLS)
 const char* mqttUser     = "max";
 const char* mqttPassword = "max";
 
@@ -74,7 +74,10 @@ int mqtt_setup() {
 void setup() { 
   Serial.begin(115200);              // set up baud rate for debugging
   pinMode(CUR_SENSOR, INPUT);        // set CUR_SENSOR to input mode
+  pinMode(RELAY, OUTPUT);            // set RELAY pin to output mode
   Serial.println(__FILE__);
+
+  digitalWrite(RELAY, HIGH);         // debug: set relay to be closed.
   
   int ret = network_setup();         // attempt network connection
   if (ret) {
@@ -98,6 +101,7 @@ void loop() {
   float watts = (WALL_VOLT * mA) / 1000;                // calculate power
   client.loop();
   sprintf(mqtt_msg, "%d", mA);
+  
   int ret = client.publish("MQTTPS", mqtt_msg, false);  // send power data as string to MQTT server
   if (!ret) {
     Serial.println("loop(): unable to publish MQTT message");          
@@ -107,5 +111,6 @@ void loop() {
     Serial.println("| loop(): MQTT message published");
   }
   memset(mqtt_msg, '\0', MAX_MSG);                      // reset static buffer
+  
   delay(DELAY_MS); 
 }
