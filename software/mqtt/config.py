@@ -1,45 +1,34 @@
-from configparser import ConfigParser
-from os.path import exists
-from getpass import getpass
-
-CONFIG_FILENAME = 'mqtt_config.ini'
-
-def create_config ():
-    print("Please enter your MQTT Broker information:")    
-    config_object = ConfigParser()
-    config_object["MQTTBrokerInfo"] = {
-        "broker_ip": input("\tEnter broker ip: "),
-        "username": input("\tEnter username: "),
-        "password": getpass("\tEnter password: ")
-    }
-
-    with open(CONFIG_FILENAME, 'w') as conf:
-        config_object.write(conf)
-
-def get_config():
-    # Read config file
-    config_object = ConfigParser()
-    config_object.read(CONFIG_FILENAME)
-    return config_object
-
-    # Convert to dictionary
-    # Reference: https://stackoverflow.com/questions/1773793/convert-configparser-items-to-dictionary
-    # return {s:dict(config_object.items(s)) for s in config_object.sections()}
-    """
-    The above line is useful for converting a config object with multiple sections into
-    a dictionary, but since I only have 1 section at the moment, the dictionary is probably
-    bigger than it needs to be. I'll have to fix this.
-    """
+import json
+import sys
+from pathlib import Path
 
 
-# DEBUG
-if __name__ == '__main__':
-    if not exists(CONFIG_FILENAME):
-        print("Looks like this is the first time you ran the server.")
-        create_config()
+CONFIG_PATH = 'config.json'
 
-    mqtt_info = get_config()["MQTTBrokerInfo"]
-    print(f'Config: {mqtt_info}')
-    print(f'IP: {mqtt_info["broker_ip"]}')
-    print(f'User: {mqtt_info["username"]}')
-    print(f'Pass: {mqtt_info["password"]}')
+default = {
+    'broker': {
+        'ip':   'address',
+        'user': 'name',
+        'pass': 'word',
+     },
+}
+
+def init():
+  assert not Path(CONFIG_PATH).exists()
+  with open(CONFIG_PATH, 'w') as cfg:
+    json.dump(default, cfg, indent=2)
+
+
+this = sys.modules[__name__].__dict__
+this.update(default) # ensure there is always a default value
+
+try:
+  with open(CONFIG_PATH) as cfg:
+    j = json.load(cfg)
+    this.update(j)
+except FileNotFoundError:
+  print(f'initialized config with default values at {CONFIG_PATH}',
+         'change these values to your own broker')
+  init()
+
+print(f'loaded {__name__}')

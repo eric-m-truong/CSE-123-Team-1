@@ -2,6 +2,7 @@ import paho.mqtt.client as mqtt
 from sys import exit
 import logging
 from db import connection, util, table_classes
+import mqtt.config as config
 
 
 """
@@ -35,7 +36,7 @@ def run():
   # init client
   try:
     client = mqtt.Client("listener")
-    client.username_pw_set("user", "pass")  # TODO put the actual username and password here 
+    client.username_pw_set(config.broker['user'], config.broker['pass'])  # TODO put the actual username and password here 
     client.connect("mosquitto.projectplux.info")
     logging.info(f"{__name__}: Connected.")
     client.subscribe("plux/data/+")
