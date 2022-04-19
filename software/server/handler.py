@@ -38,8 +38,8 @@ def stream(plug_num):
 def toggle_plug(plug_num):
   try:
     client = mqtt.Client("post") # may need to randomize name
-    client.connect(config.broker['ip'])
     client.username_pw_set(config.broker['user'], config.broker['pass'])
+    client.connect(config.broker['ip'])
     print(plug_num)
     client.publish("ctrl", int(plug_num))
   except ConnectionRefusedError:
