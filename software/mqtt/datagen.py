@@ -28,7 +28,7 @@ def run():
   names_and_status = ((alias if alias else mac, status)
       for mac, alias, status in dbcon.execute(con, "SELECT * FROM Plugs"))
   try:
-    names, status = zip(*names_and_status) # inverse zip
+    names, status = map(list, zip(*names_and_status)) # inverse zip
   except ValueError:
     logging.warning("no plugs in database. aborting.")
     exit(1)
