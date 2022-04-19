@@ -35,7 +35,7 @@ def run():
 
   # init client
   try:
-    client = mqtt.Client("listener") # may need to randomize name
+    client = mqtt.Client()
     client.username_pw_set(config.broker['user'], config.broker['pass'])
     client.connect(config.broker['ip'])
     logging.info(f"{__name__}: Connected.")

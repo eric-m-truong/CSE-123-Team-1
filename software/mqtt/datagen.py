@@ -13,7 +13,7 @@ def run():
   Send a plug number to channel "ctrl" to toggle the plug ON/OFF
   """
   try:
-    client = mqtt.Client("datagen") # may need to randomize name
+    client = mqtt.Client() # may need to randomize name
     client.username_pw_set(config.broker['user'], config.broker['pass'])
     client.connect(config.broker['ip'])
   except ConnectionRefusedError:
