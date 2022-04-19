@@ -39,7 +39,7 @@ def run(plug_num):
 
   while True:
     if status[(rnd_plug_num := randrange(plug_num))] == ENABLED:
-      topic = f"plug/{rnd_plug_num}"
+      topic = f"plux/data/{rnd_plug_num}"
       message = f"{time()},{random()}"
       client.publish(topic, message)
       sleep(random())

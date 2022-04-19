@@ -46,7 +46,7 @@
   client.connect({onSuccess:onConnect});
 
   function onConnect() {
-    client.subscribe("plug/{{plug_num}}");
+    client.subscribe("plux/data/{{plug_num}}");
   }
 
   function onMessageArrived(m) {
