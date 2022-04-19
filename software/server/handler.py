@@ -30,9 +30,21 @@ def stream(plug_num):
   ip = config.broker['ip']
   user = config.broker['user']
   pw = config.broker['pass']
-  return render_template("mqtt_ws.html",
-                         plug_num=int(plug_num),
-                         ip=ip, username=user, password=pw)
+
+  con = connect()
+
+  name_and_status = [(alias if alias else mac, status)
+      for mac, alias, status in execute(con, "SELECT * FROM Plugs")]
+  name, status = name_and_status[int(plug_num)]
+
+  con.close()
+
+  if not status:
+    return f'{name} is disabled!'
+  else:
+    return render_template("mqtt_ws.html",
+                           plug_name=name,
+                           ip=ip, username=user, password=pw)
 
 
 def toggle_plug(plug_num):
@@ -83,6 +95,7 @@ def list_plugs():
   con = connect()
   plugs = [(alias if alias else mac, status)
       for mac, alias, status in execute(con, "SELECT * FROM Plugs").fetchall()]
+  con.close()
   return render_template("lp.html", plugs=plugs)
 
 
