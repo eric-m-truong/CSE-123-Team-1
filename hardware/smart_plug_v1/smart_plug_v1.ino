@@ -101,6 +101,8 @@ int mqtt_setup() {
     }
   }
 
+  client.setCallback(msg_receive);                                // set callback function for receiving messages
+  
   sprintf(mqttDataTopicStr, "%s%s", mqttDataTopic, mac_addr);     // print concatenated string to data topic buffer
   sprintf(mqttCtrlTopicStr, "%s%s",  mqttCtrlTopic, mac_addr);    // print concatenated string to control topic buffer
   
@@ -149,6 +151,7 @@ void setup() {
                                                               // 3600: DST offset
 
   ACS.autoMidPoint(1);                                        // change this value to refine accuracy
+  digitalWrite(RELAY, HIGH);
 }
 
 // helper callback function for receiving messages from server
@@ -194,5 +197,5 @@ void loop() {
     Serial.println(" | loop(): MQTT message published");
   }
   memset(mqtt_msg, '\0', MAX_MSG);                              // reset static buffer
-  delay(DELAY_MS); 
+  delay(DELAY_MS);
 }
