@@ -15,6 +15,7 @@ def run(plug_num):
 
   try:
     client = mqtt.Client("datagen")
+    client.username_pw_set(config.broker['user'], config.broker['pass'])
     client.connect(config.broker['ip'])
   except ConnectionRefusedError:
     logging.info(f"No broker running on {config.broker['ip']}, exiting...")
@@ -41,6 +42,7 @@ def run(plug_num):
     if status[(rnd_plug_num := randrange(plug_num))] == ENABLED:
       topic = f"plux/data/{rnd_plug_num}"
       message = f"{time()},{random()}"
+      # logging.debug(f'{topic}: {message}')
       client.publish(topic, message)
       sleep(random())
 
