@@ -4,7 +4,7 @@ import paho.mqtt.client as mqtt
 
 from plot import donut_tot, stacked
 from db.connection import connect, execute
-import mqtt.config as config
+from mqtt import config
 
 
 app = Flask(__name__)

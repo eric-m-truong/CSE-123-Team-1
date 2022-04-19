@@ -2,7 +2,7 @@ import paho.mqtt.client as mqtt
 from sys import exit
 import logging
 from db import connection, util, table_classes
-import mqtt.config as config
+from mqtt import config
 
 
 """
@@ -35,7 +35,7 @@ def run():
 
   # init client
   try:
-    client = mqtt.Client("listener")
+    client = mqtt.Client("listener") # may need to randomize name
     client.username_pw_set(config.broker['user'], config.broker['pass'])
     client.connect(config.broker['ip'])
     logging.info(f"{__name__}: Connected.")

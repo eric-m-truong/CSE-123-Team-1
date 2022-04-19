@@ -3,7 +3,7 @@ from random import random, randrange
 from time import sleep, time
 from sys import exit
 import logging
-import mqtt.config as config
+from mqtt import config
 
 
 def run(plug_num):
@@ -14,7 +14,7 @@ def run(plug_num):
   print(plug_num)
 
   try:
-    client = mqtt.Client("datagen")
+    client = mqtt.Client("datagen") # may need to randomize name
     client.username_pw_set(config.broker['user'], config.broker['pass'])
     client.connect(config.broker['ip'])
   except ConnectionRefusedError:
