@@ -3,7 +3,7 @@
 
 #include "ACS712.h"
 #include "time.h"
-#include "mqtt_setup.h"
+#include "plug_setup.h"
 
 // ESP32 Pins
 #define CUR_SENSOR A2                 // adjust pins as necessary
