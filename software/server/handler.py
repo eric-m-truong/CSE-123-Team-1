@@ -27,13 +27,20 @@ def serve_stacked():
 
 @app.route('/stream/<plug_num>', methods=['GET'])
 def stream(plug_num):
-  return render_template("mqtt_ws.html", plug_num=int(plug_num))
+  ip = config.broker['ip']
+  user = config.broker['user']
+  pw = config.broker['pass']
+  return render_template("mqtt_ws.html",
+                         plug_num=int(plug_num),
+                         ip=ip, username=user, password=pw)
 
 
 def toggle_plug(plug_num):
   try:
-    client = mqtt.Client("post")
+    client = mqtt.Client("post") # may need to randomize name
     client.connect(config.broker['ip'])
+    client.username_pw_set(config.broker['user'], config.broker['pass'])
+    print(plug_num)
     client.publish("ctrl", int(plug_num))
   except ConnectionRefusedError:
     print(f"No broker running on {config.broker['ip']}")

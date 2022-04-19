@@ -41,16 +41,24 @@
   window.crypto.getRandomValues(rBuf);
   const r = new DataView(rBuf.buffer).getUint32();
 
-  client = new Paho.MQTT.Client("localhost", Number(8883), "plug-"+r);
+  client = new Paho.MQTT.Client("{{ip}}", Number(443), "plug-"+r);
   client.onMessageArrived = onMessageArrived;
-  client.connect({onSuccess:onConnect});
+  client.connect({
+      onSuccess: onConnect,
+      userName:  "{{username}}",
+      password:  "{{password}}",
+      useSSL:    true,
+    });
 
   function onConnect() {
-    client.subscribe("plux/data/{{plug_num}}");
+    var topic = "plux/data/{{plug_num}}";
+    client.subscribe(topic);
+    console.log(topic);
   }
 
   function onMessageArrived(m) {
     let [ts, pwr] = m.payloadString.split(",").map(parseFloat);
+    console.log(ts, pwr);
     source.data.x.push(ts)
     source.data.y.push(pwr)
     source.change.emit()
@@ -59,11 +67,6 @@
 </head>
 
 <body>
-<div>
-  This is an example of a plot that updated with data from an mqtt client
-  running client side that recieves data through websockets, embedded in an
-  arbitrary html document.
-</div>
 <script>Bokeh.Plotting.show(plot);</script>
 </body>
 </html>
