@@ -36,14 +36,14 @@ def run():
   # init client
   try:
     client = mqtt.Client("listener")
-    client.username_pw_set(config.broker['user'], config.broker['pass'])  # TODO put the actual username and password here 
-    client.connect("mosquitto.projectplux.info")
+    client.username_pw_set(config.broker['user'], config.broker['pass'])
+    client.connect(config.broker['ip'])
     logging.info(f"{__name__}: Connected.")
     client.subscribe("plux/data/+")
     client.on_message=on_message
     client.loop_forever()
   except ConnectionRefusedError:
-    logging.info(f"No broker running on mosquitto.projectplux.info, exiting...")
+    logging.info(f"No broker running on {config.broker['ip']}, exiting...")
     exit(1)
 
 
