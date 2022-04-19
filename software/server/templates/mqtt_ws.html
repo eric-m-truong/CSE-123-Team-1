@@ -41,7 +41,7 @@
   window.crypto.getRandomValues(rBuf);
   const r = new DataView(rBuf.buffer).getUint32();
 
-  client = new Paho.MQTT.Client("{{ip}}", Number(443), "plug-"+r);
+  client = new Paho.MQTT.Client("{{ip}}", Number(443), "ws-stream-"+r);
   client.onMessageArrived = onMessageArrived;
   client.connect({
       onSuccess: onConnect,
@@ -51,14 +51,11 @@
     });
 
   function onConnect() {
-    var topic = "plux/data/{{plug_num}}";
-    client.subscribe(topic);
-    console.log(topic);
+    client.subscribe("plux/data/{{plug_num}}");
   }
 
   function onMessageArrived(m) {
     let [ts, pwr] = m.payloadString.split(",").map(parseFloat);
-    console.log(ts, pwr);
     source.data.x.push(ts)
     source.data.y.push(pwr)
     source.change.emit()
