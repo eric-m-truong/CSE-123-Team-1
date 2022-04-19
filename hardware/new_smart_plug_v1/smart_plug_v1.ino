@@ -18,7 +18,7 @@
 #define DELAY_MS 1000                 // adjust this to change data transmit rate
 #define MAX_RETRY 30                  // adjust this to determine how many times ESP32 tries to connect to network
 #define MAX_MSG 30                    // adjust this to determine max MQTT message length
-#define MAC_ADDR_LEN 17               // length of MAC address in characters (includes colons)
+//#define MAC_ADDR_LEN 17               // length of MAC address in characters (includes colons)
 #define MAX_TIME_LEN 20               // length of string-formatted time
 
 // Timestamps
