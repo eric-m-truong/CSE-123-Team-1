@@ -4,6 +4,7 @@ import paho.mqtt.client as mqtt
 
 from plot import donut_tot, stacked
 from db.connection import connect, execute
+import mqtt.config as config
 
 
 app = Flask(__name__)
@@ -32,10 +33,10 @@ def stream(plug_num):
 def toggle_plug(plug_num):
   try:
     client = mqtt.Client("post")
-    client.connect("localhost")
+    client.connect(config.broker['ip'])
     client.publish("ctrl", int(plug_num))
   except ConnectionRefusedError:
-    print("No broker running on localhost")
+    print(f"No broker running on {config.broker['ip']}")
 
 
 @app.route('/toggle/<plug_num>')

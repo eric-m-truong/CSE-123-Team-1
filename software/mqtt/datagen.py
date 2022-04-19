@@ -3,6 +3,7 @@ from random import random, randrange
 from time import sleep, time
 from sys import exit
 import logging
+import mqtt.config as config
 
 
 def run(plug_num):
@@ -14,9 +15,9 @@ def run(plug_num):
 
   try:
     client = mqtt.Client("datagen")
-    client.connect("localhost")
+    client.connect(config.broker['ip'])
   except ConnectionRefusedError:
-    logging.info(f"No broker running on localhost, exiting...")
+    logging.info(f"No broker running on {config.broker['ip']}, exiting...")
     exit(1)
   logging.info(f"{__name__}: Connected.")
 
