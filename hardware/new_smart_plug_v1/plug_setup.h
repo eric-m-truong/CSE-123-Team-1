@@ -3,7 +3,7 @@
 
 int mqtt_setup();
 int network_setup();
-void setup();
 char* get_mqttDataTopicStr();
+char* get_mqttCtrlTopicStr();
 
 #endif
