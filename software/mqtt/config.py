@@ -7,9 +7,13 @@ CONFIG_PATH = 'config.json'
 
 default = {
     'broker': {
-        'ip':   'address',
-        'user': 'name',
-        'pass': 'word',
+        'ip':   'localhost',
+        'user': '',
+        'pass': '',
+        'port': {
+          'mqtt': '1883',
+          'websocket': '8883',
+        }
      },
 }
 
