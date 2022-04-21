@@ -1,0 +1,9 @@
+<form method="post">
+  <select name="plug">
+  {% for plug in plugs %}
+    <option value="{{ plug }}">{{ plug }}</option>
+  {% endfor %}
+  </select>
+  <input type="text" name="alias">
+  <input type="submit" value="change alias">
+</form>
