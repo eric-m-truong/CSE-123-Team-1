@@ -29,7 +29,7 @@ int main (void){
                 average = average/20;
                 cout<< "Average is "<< average << endl;
                 count=0;
-                
+                arr.clear();
             }
             
             //insert to array
