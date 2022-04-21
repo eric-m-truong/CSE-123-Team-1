@@ -49,39 +49,22 @@ def stream(plug_num):
                            ip=ip, username=user, password=pw)
 
 
-def toggle_plug(plug_num):
+@app.route('/toggle', methods = ['POST'])
+def toggle():
+  mac = request.form.get('mac')
+  status = request.form.get('status')
+
   try:
     client = mqtt.Client()
     client.username_pw_set(config.broker['user'], config.broker['pass'])
     client.connect(config.broker['ip'])
-    print(plug_num)
-    client.publish("ctrl", int(plug_num))
+    topic = f'plux/ctrl/{mac}'
+    logging.debug(f'sending {status} to {topic}')
+    client.publish(topic, int(status))
   except ConnectionRefusedError:
     print(f"No broker running on {config.broker['ip']}")
 
-
-@app.route('/toggle/<plug_num>')
-def toggle(plug_num):
-  toggle_plug(plug_num)
   return '', 204 # return empty response
-
-
-post = """
-<form method="post">
-  <input type="text" name="plug">
-  <input type="submit" value="send signal">
-</form>
-"""
-
-
-@app.route('/toggle', methods = ['POST', 'GET'])
-def toggle_form():
-  if request.method == 'POST':
-    plug = request.form.get('plug')
-    toggle_plug(plug)
-    return '', 204 # return empty response
-  else:
-    return post
 
 
 @app.route("/")
@@ -95,7 +78,7 @@ def root():
 @app.route("/lp")
 def list_plugs():
   con = connect()
-  plugs = [(alias if alias else mac, status)
+  plugs = [(mac, alias if alias else mac, status)
       for mac, alias, status in execute(con, "SELECT * FROM Plugs").fetchall()]
   con.close()
   return render_template("lp.html", plugs=plugs)
@@ -120,6 +103,7 @@ def give_alias():
         execute(con, "SELECT mac_addr FROM Plugs").fetchall()]
     con.close()
     return render_template("alias.html", plugs=plugs)
+
 
 if __name__ == '__main__':
   app.run(debug = True)

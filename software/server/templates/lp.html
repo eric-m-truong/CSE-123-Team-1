@@ -1,17 +1,28 @@
 <table>
   <tr>
-    <th>Plug</th>
+    <th>Alias</th>
     <th>Status</th>
     <th>Toggle</th>
   </tr>
-  {% for plug, status in plugs %}
+  {% for mac, alias, status in plugs %}
   <tr>
     <td>
-      <a href="{{ url_for('stream', plug_num=loop.index0) }}">{{ plug }}</a>
+      <a href="{{ url_for('stream', plug_num=loop.index0) }}">{{ alias }}</a>
     </td>
     <td>{{ status }}</td>
     <td>
-      <a href="{{ url_for('toggle', plug_num=loop.index0) }}">Toggle</a>
+      <form action="{{ url_for('toggle') }}" method="post">
+        <input type="hidden" name="mac" value="{{ mac }}">
+        <input type="hidden" name="status" value="0">
+        <input type="submit" value="OFF">
+      </form>
+    </td>
+    <td>
+      <form action="{{ url_for('toggle') }}" method="post">
+        <input type="hidden" name="mac" value="{{ mac }}">
+        <input type="hidden" name="status" value="1">
+        <input type="submit" value="ON">
+      </form>
     </td>
   </tr>
   {% endfor %}

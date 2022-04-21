@@ -37,12 +37,18 @@ def run():
 
 
   def on_message(client, userdata, message):
-    plug_num = int(message.payload)
-    status[plug_num] = not status[plug_num]
-    logging.debug(f'tog {plug_num} to {status[plug_num]}')
+    mac_addr = message.topic.split('/')[-1]
+    set_status = int(message.payload)
+    plug_num = names.index(mac_addr)
+    status[plug_num] = set_status
+
+    sleep(random()) # intro random delay to simulate processing time
+    client.publish(f"plux/ctrl/ack/{mac_addr}", set_status)
+
+    logging.debug(f'set {mac_addr} to {status[plug_num]}')
 
 
-  client.subscribe("ctrl")
+  client.subscribe("plux/ctrl/+")
   client.on_message=on_message
   client.loop_start()
 
@@ -52,7 +58,7 @@ def run():
     if status[(rnd_plug_num := randrange(num_plugs))]:
       topic = f"plux/data/{names[rnd_plug_num]}"
       message = f"{time()},{random()}"
-      logging.debug(f'{topic}: {message}')
+      # logging.debug(f'{topic}: {message}')
       client.publish(topic, message)
       sleep(random())
 
