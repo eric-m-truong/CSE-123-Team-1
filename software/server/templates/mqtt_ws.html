@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 
-<title>Plug #{{plug_num}}</title>
+<title>Plug {{plug_name}}</title>
 <script type="text/javascript"
   src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.2.min.js"></script>
 <script type="text/javascript"
@@ -30,7 +30,10 @@
   // make a plot with some tools
   const plot = Bokeh.Plotting.figure({
       sizing_mode: 'stretch_width',
+      x_axis_type: 'datetime',
   });
+
+  plot.x_range.flipped = true;
 
   // add a line with data from the source
   plot.line({ field: "x" }, { field: "y" }, {
@@ -41,29 +44,32 @@
   window.crypto.getRandomValues(rBuf);
   const r = new DataView(rBuf.buffer).getUint32();
 
-  client = new Paho.MQTT.Client("localhost", Number(8883), "plug-"+r);
+  // change 443 to 8883 if localhost
+  client = new Paho.MQTT.Client("{{ip}}", Number(443), "ws-stream-"+r);
   client.onMessageArrived = onMessageArrived;
-  client.connect({onSuccess:onConnect});
+  client.connect({
+      onSuccess: onConnect,
+      // comment these out when using localhost
+      userName:  "{{username}}",
+      password:  "{{password}}",
+      useSSL:    true,
+      // --------------------------------------
+    });
 
   function onConnect() {
-    client.subscribe("plug/{{plug_num}}");
+    client.subscribe("plux/data/{{plug_name}}");
   }
 
   function onMessageArrived(m) {
     let [ts, pwr] = m.payloadString.split(",").map(parseFloat);
-    source.data.x.push(ts)
-    source.data.y.push(pwr)
-    source.change.emit()
+    source.data.x.push(ts);
+    source.data.y.push(pwr);
+    source.change.emit();
   }
 </script>
 </head>
 
 <body>
-<div>
-  This is an example of a plot that updated with data from an mqtt client
-  running client side that recieves data through websockets, embedded in an
-  arbitrary html document.
-</div>
 <script>Bokeh.Plotting.show(plot);</script>
 </body>
 </html>

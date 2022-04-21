@@ -4,6 +4,7 @@ import paho.mqtt.client as mqtt
 
 from plot import donut_tot, stacked
 from db.connection import connect, execute
+from mqtt import config
 
 
 app = Flask(__name__)
@@ -26,16 +27,35 @@ def serve_stacked():
 
 @app.route('/stream/<plug_num>', methods=['GET'])
 def stream(plug_num):
-  return render_template("mqtt_ws.html", plug_num=int(plug_num))
+  ip = config.broker['ip']
+  user = config.broker['user']
+  pw = config.broker['pass']
+
+  con = connect()
+
+  name_and_status = [(alias if alias else mac, status)
+      for mac, alias, status in execute(con, "SELECT * FROM Plugs")]
+  name, status = name_and_status[int(plug_num)]
+
+  con.close()
+
+  if not status:
+    return f'{name} is disabled!'
+  else:
+    return render_template("mqtt_ws.html",
+                           plug_name=name,
+                           ip=ip, username=user, password=pw)
 
 
 def toggle_plug(plug_num):
   try:
-    client = mqtt.Client("post")
-    client.connect("localhost")
+    client = mqtt.Client()
+    client.username_pw_set(config.broker['user'], config.broker['pass'])
+    client.connect(config.broker['ip'])
+    print(plug_num)
     client.publish("ctrl", int(plug_num))
   except ConnectionRefusedError:
-    print("No broker running on localhost")
+    print(f"No broker running on {config.broker['ip']}")
 
 
 @app.route('/toggle/<plug_num>')
@@ -75,6 +95,7 @@ def list_plugs():
   con = connect()
   plugs = [(alias if alias else mac, status)
       for mac, alias, status in execute(con, "SELECT * FROM Plugs").fetchall()]
+  con.close()
   return render_template("lp.html", plugs=plugs)
 
 
