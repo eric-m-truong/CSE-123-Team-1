@@ -3,7 +3,7 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 
-from bokeh.palettes import brewer
+from bokeh.palettes import viridis
 from bokeh.plotting import figure, save, show
 from bokeh.resources import CDN
 from bokeh.embed import file_html
@@ -52,7 +52,7 @@ def generate():
   p.x_range.flipped = True
 
   p.varea_stack(names,
-      color=brewer['Spectral'][len(names)],
+      color=viridis(len(names)),
       x='ts',
       legend_label=names,
       source=data)
