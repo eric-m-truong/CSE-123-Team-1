@@ -27,3 +27,4 @@ SEL_UNIQ_TS = lambda range: f"""
                  {range}
                  ORDER BY timestamp ASC
               """
+UPD_ALIAS = """ UPDATE Plugs SET alias = (?) WHERE mac_addr = (?) """
