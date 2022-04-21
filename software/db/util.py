@@ -1,11 +1,13 @@
 from dataclasses import asdict
 
 from db import table_classes, query
-from db.connection import execute
+from db.connection import execute, executemany
 
 
 add_plug = lambda con, plug: execute(con, query.INS_PLUG, asdict(plug))
 add_data = lambda con, dp: execute(con, query.INS_DATA, asdict(dp))
+add_data_many = lambda con, ds: \
+    executemany(con, query.INS_DATA, map(asdict, ds))
 # can only ever return one row or nothing
 get_plug_by_mac = lambda con, mac: \
   execute(con, query.SEL_PLUG_BY_MAC, mac).fetchone()

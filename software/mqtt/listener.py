@@ -5,32 +5,35 @@ from db import connection, util, table_classes
 from mqtt import config
 
 
-"""
-todo:
-  - accumulate values in buffer
-  - periodically flush to db
-  - add MAC to mqtt_datagen
-"""
-
-# Parses CSV into a list
 csv_to_list = lambda csv_str : list(map(str.strip, csv_str.split(',')))
 
+
 def run():
+  buffer = []
+
   def on_message(client, userdata, message):
     ts, pwr = csv_to_list(message.payload.decode("utf-8"))
     mac_addr = message.topic.split('/')[-1]   # Grabs the MAC Address from the MQTT topic
     logging.debug(f'\n ts:  {ts}\n pwr: {pwr}\n mac: {mac_addr}\n')
 
-    con = connection.connect()
+    con = connection.connect() # Move outside fn?
 
+    # TODO: may benefit from caching existence checks
     # If this plug doesn't exist in the database, add it
     if not util.get_plug_by_mac(con, mac_addr):
       plug = table_classes.Plug(mac_addr, is_on=True)   # Since the plug sent a message, it should be on
       util.add_plug(con, plug)                          # Add the plug into the database
 
     # Add the datapoint
-    new_datapoint = table_classes.Datapoint(ts, mac_addr, pwr)
-    util.add_data(con, new_datapoint)
+    d = table_classes.Datapoint(ts, mac_addr, pwr)
+    buffer.append(d)
+
+    if len(buffer) >= 24:
+      util.add_data_many(con, buffer)
+      buffer.clear()
+      logging.debug('flushing plug data to db')
+    else:
+      logging.debug(len(buffer))
 
 
   # init client

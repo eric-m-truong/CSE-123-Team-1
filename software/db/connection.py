@@ -65,6 +65,11 @@ def execute(con, query, *parm):
     return con.execute(query, p)
 
 
+def executemany(con, query, parm):
+  with con: # auto calls .commit()
+    return con.executemany(query, parm)
+
+
 def init(con):
   """ Creates Plugs and Data table. See db.query for the query strings. """
   execute(con, query.INIT_PLUG)
