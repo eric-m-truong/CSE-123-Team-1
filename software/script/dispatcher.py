@@ -8,10 +8,10 @@ import logging
 
 BURST_MAX = 5
 
-def execfn(fn, args=()):
+def execfn(fn, *args, **kwargs):
   pid = fork()
   if pid == 0:
-    fn(*args)
+    fn(*args, **kwargs)
   return pid
 
 
