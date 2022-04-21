@@ -30,7 +30,10 @@
   // make a plot with some tools
   const plot = Bokeh.Plotting.figure({
       sizing_mode: 'stretch_width',
+      x_axis_type: 'datetime',
   });
+
+  plot.x_range.flipped = true;
 
   // add a line with data from the source
   plot.line({ field: "x" }, { field: "y" }, {
@@ -56,9 +59,9 @@
 
   function onMessageArrived(m) {
     let [ts, pwr] = m.payloadString.split(",").map(parseFloat);
-    source.data.x.push(ts)
-    source.data.y.push(pwr)
-    source.change.emit()
+    source.data.x.push(ts);
+    source.data.y.push(pwr);
+    source.change.emit();
   }
 </script>
 </head>
