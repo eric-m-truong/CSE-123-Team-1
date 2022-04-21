@@ -1,38 +1,49 @@
 #!/usr/bin/python3
 
-from pathlib import Path
 import logging
+import argparse
+from importlib import import_module
 
 from db.connection import DB_PATH
-import db.datagen as dbgen
-import mqtt.datagen as mqttgen
 from script.dispatcher import exec, execfn
 from script import dispatcher
-from mqtt import listener
+from mqtt import listener, config # read config now so forks won't read again
+from server import handler
 
+parser = argparse.ArgumentParser(description='Run plux server.')
+parser.add_argument('--provision', '-p',
+                    action=argparse.BooleanOptionalAction,
+                    default=False,
+                    help='Provision the database with random data from '
+                         'yesterday to today.')
+parser.add_argument('--dummy', '-d',
+                    action=argparse.BooleanOptionalAction,
+                    default=False,
+                    help='Generate dummy plug data.')
+args = parser.parse_args()
 
 format = '%(levelname)s:%(module)s:%(message)s'
 logging.basicConfig(format=format, level=logging.DEBUG)
 
 
-"""
-1. Delete db
-2. Init db w/ db/datagen.py
-3. Start mosquitto
-4. Start mqtt/datagen.py
-5. Start mqtt listener
-6. Start flask web server
-"""
+if args.provision:
+  PLUG_NUM = 4
+  import_module('db.datagen').generate(PLUG_NUM)
 
-PLUG_NUM = 4
-
-# Path(DB_PATH).unlink(missing_ok=True)
-dbgen.generate(PLUG_NUM)
-
-es = [lambda: execfn(mqttgen.run),
+# order matters here unfortunately. flask must come last so it isn't the
+# processt the dispatcher waits for. if it is, it will eat one of our
+# KeyboardInterrupt signals.
+es = [lambda: exec('mosquitto', ['-c', 'script/mosquitto.conf']),
       lambda: execfn(listener.run),
-      lambda: exec('flask', ['run'], env={'FLASK_APP': 'server/handler'})
+      lambda: execfn(handler.app.run,
+        host='0.0.0.0', # listen on all addresses: accessible outside localhost
+        port=5000,
+        debug=False # don't show python errors in browser on error
+        )
      ]
+
+if args.dummy:
+  es.insert(1, lambda: execfn(import_module('mqtt.datagen').run))
 
 try:
   dispatcher.run(es)
