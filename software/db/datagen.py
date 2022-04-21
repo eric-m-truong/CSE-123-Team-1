@@ -47,4 +47,4 @@ def generate(plug_num):
 
 
 if __name__ == '__main__':
-  generate()
+  generate(4)

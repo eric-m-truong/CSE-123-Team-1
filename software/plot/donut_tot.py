@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from bokeh.palettes import Paired
+from bokeh.palettes import viridis
 from bokeh.plotting import figure, save
 from bokeh.transform import cumsum
 from bokeh.resources import CDN
@@ -27,7 +27,7 @@ def generate():
 
   data = pd.Series(x).reset_index(name='value').rename(columns={'index': 'dev'})
   data['angle'] = data['value']/data['value'].sum() * 2*pi
-  data['color'] = Paired[len(x)]
+  data['color'] = viridis(len(x))
 
 
   # Plotting code
