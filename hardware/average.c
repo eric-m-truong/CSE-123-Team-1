@@ -81,10 +81,10 @@ int main(void){
                 average = 0;
                 count=0;
               }
-              flag=0;
           }
           //else printf("Invalid input: %s\n", token);  // debug statement to check invalid inputs
           valid=0;
+          flag=0;
           token = strtok(NULL, s);
        }
     }
