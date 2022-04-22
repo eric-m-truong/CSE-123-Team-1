@@ -56,14 +56,12 @@ int main(void){
                    if (token[i]=='.') flag++;
                    if (flag>1) {
                         // more than one decimal point, do not include in calculations
-                        flag=0;
                         valid=1;
                         break;
                     }
                 }
                 else{
                     // char is not valid
-                    flag=0;
                     valid=1;
                     break;
                 }
