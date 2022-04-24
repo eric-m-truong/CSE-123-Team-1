@@ -24,10 +24,6 @@ const char* ntpServer = "pool.ntp.org";
 unsigned long epochTime; 
 char displayTime[MAX_TIME_LEN];
 
-// Bluetooth
-//String message = "";
-char incomingChar;
-
 // Network
 String ssid         = "iPhone";                                     // SSID of network to be connected to
 String password     = "yaaabruh";                                     // password of network to be connected to
@@ -49,7 +45,6 @@ static char mqttCtrlTopicStr[13 + MAC_ADDR_LEN + 1];                            
 
 // Object constructors
 ACS712  ACS(A2, 5.0, 4095, 66);      // call ACS712.h constructor for 30A variant
-//BluetoothSerial SerialBT;            // call Bluetooth constructor
 WiFiClient espClient;                // call WiFi constructor
 PubSubClient client(espClient);      // call MQTT constructor
 
@@ -206,10 +201,10 @@ static void msg_receive(char *topic, byte* payload, unsigned int length) {
   Serial.print("msg_receive(): payload - ");
   Serial.println(msg);
   switch (msg) {
-    case 49: // turning ON circuit (for some reason 1 == 49)
+    case 49: // turning ON circuit (ASCII 1 == int 49)
       digitalWrite(RELAY, HIGH);
       return;
-    case 50: // turning OFF circuit (for some reason 2 == 50)
+    case 50: // turning OFF circuit (ASCII 2 == 50)
       digitalWrite(RELAY, LOW);
       return;
   }
