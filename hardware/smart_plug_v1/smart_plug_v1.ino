@@ -1,7 +1,9 @@
+#include <WebServer.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 
 #include "ACS712.h"
+#include "EEPROM.h"
 #include "time.h"
 
 // ESP32 Pins
@@ -26,8 +28,7 @@ char displayTime[MAX_TIME_LEN];
 
 // Network
 String ssid         = "iPhone";                                     // SSID of network to be connected to
-String password     = "yaaabruh";                                     // password of network to be connected to
-//const char* ssl_server   = "www.howsmyssl.com";             // for encryption: SSL server URL
+String password     = "yaaabruh";                                   // password of network to be connected to
 
 // MQTT
 const char* mqttDataTopic    = "plux/data/";                  // publishing topic for plug, will be cominbed with MAC address later
@@ -48,21 +49,30 @@ ACS712  ACS(A2, 5.0, 4095, 66);      // call ACS712.h constructor for 30A varian
 WiFiClient espClient;                // call WiFi constructor
 PubSubClient client(espClient);      // call MQTT constructor
 
-// Function declarations
+// Function declarations - General
 static void printLocalTime();
-static void bluetooth_prompt(String &msg);
-//static int bluetooth_setup();
+
+// Function declarations - Network
 static int network_setup();
+
+// Function declarations - MQTT
 static int mqtt_setup();
 static void msg_receive(char *topic, byte* payload, unsigned int length);
 
-// initialization function for ESP32
-// source: https://github.com/RobTillaart/ACS712/blob/master/examples/ACS712_20_AC/ACS712_20_AC.ino
+/* initialization function for ESP32
+ * source: https://github.com/RobTillaart/ACS712/blob/master/examples/ACS712_20_AC/ACS712_20_AC.ino
+ */
 void setup() { 
   Serial.begin(115200);                                       // set up baud rate for debugging
   pinMode(CUR_SENSOR, INPUT);                                 // set CUR_SENSOR to input mode
   pinMode(RELAY, OUTPUT);                                     // set RELAY pin to output mode
   Serial.println(__FILE__);
+
+//  int ret = get_network_info();                               // dynamically obtain SSID and password
+//  if (ret) {
+//    Serial.println("setup(): obtaining SSID and password failed");
+//    return;
+//  }
   
   int ret = network_setup();                                      // attempt network connection
   if (ret) {
@@ -98,10 +108,10 @@ void setup() {
   ACS.autoMidPoint(1);                                        // change this value to refine accuracy
 }
 
-// main function for power monitoring and data transmission/reception
-// sources: https://randomnerdtutorials.com/esp32-mqtt-publish-subscribe-arduino-ide/
+/* main function for power monitoring and data transmission/reception
+ * sources: https://randomnerdtutorials.com/esp32-mqtt-publish-subscribe-arduino-ide/
+ */ 
 void loop() {
-//  digitalWrite(RELAY, HIGH);                                    // debug: toggle RELAY pin to high to test connectivity
   int mA = ACS.mA_AC(WALL_FREQ);                                // measure AC current
   float watts = (WALL_VOLT * mA) / 1000;                        // calculate power
   client.loop();                                                // keep listening on MQTT topic
@@ -120,12 +130,12 @@ void loop() {
   }
   memset(mqtt_msg, '\0', MAX_MSG);                              // reset static buffer
   delay(DELAY_MS);
-//  digitalWrite(RELAY, LOW);                                     // debug: toggle RELAY pin to high to test connectivity
 }
 
-// helper function that gets current epoch time
-// sources: https://lastminuteengineers.com/esp32-ntp-server-date-time-tutorial/
-//         https://forum.arduino.cc/t/time-library-functions-with-esp32-core/515397/4
+/* helper function that gets current epoch time
+ * sources: https://lastminuteengineers.com/esp32-ntp-server-date-time-tutorial/
+ *          https://forum.arduino.cc/t/time-library-functions-with-esp32-core/515397/4
+ */
 static void printLocalTime(){
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
@@ -137,9 +147,10 @@ static void printLocalTime(){
   strftime(displayTime, MAX_TIME_LEN, "%Y-%m-%d %H:%M:%S", &timeinfo);
 }
 
-// helper function for connecting to Internet
-// sources: https://randomnerdtutorials.com/esp32-useful-wi-fi-functions-arduino/
-//          https://github.com/espressif/arduino-esp32/blob/master/libraries/WiFiClientSecure/examples/WiFiClientSecure/WiFiClientSecure.ino
+/* helper function for connecting to Internet
+ * sources: https://randomnerdtutorials.com/esp32-useful-wi-fi-functions-arduino/
+ *          https://github.com/espressif/arduino-esp32/blob/master/libraries/WiFiClientSecure/examples/WiFiClientSecure/WiFiClientSecure.ino
+ */
 static int network_setup() {
   
   WiFi.mode(WIFI_STA);                                              // WiFi connection process
@@ -163,7 +174,9 @@ static int network_setup() {
   
 }
 
-// initialization of MQTT connection
+/* initialization of MQTT connection
+ *  
+ */
 static int mqtt_setup() {
   client.setServer(mqttServer, mqttPort);                         // set destination server
   while (!client.connected()) {
@@ -187,9 +200,10 @@ static int mqtt_setup() {
   return 0;
 }
 
-// helper callback function for receiving messages from server
-// sources: https://pubsubclient.knolleary.net/api#callback
-//          http://www.iotsharing.com/2017/08/how-to-use-esp32-mqtts-with-mqtts-mosquitto-broker-tls-ssl.html
+/* helper callback function for receiving messages from server
+ * sources: https://pubsubclient.knolleary.net/api#callback
+ *          http://www.iotsharing.com/2017/08/how-to-use-esp32-mqtts-with-mqtts-mosquitto-broker-tls-ssl.html
+ */
 static void msg_receive(char *topic, byte* payload, unsigned int length) {
 
   // print topic
