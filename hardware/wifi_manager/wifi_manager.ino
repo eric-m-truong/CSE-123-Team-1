@@ -1,5 +1,6 @@
 // Simple WiFi Manager for PLUX project.
 // Not completely copy-pasted; I copied the contents from the other files in the repo into one.
+// In the actual code, I'm going to simplify this down quite a bit.
 // - James
 // Source: https://github.com/kurimawxx00/wifi-manager
 
