@@ -30,18 +30,18 @@ String ssid         = "iPhone";                                     // SSID of n
 String password     = "yaaabruh";                                   // password of network to be connected to
 
 // MQTT
-const char* mqttDataTopic    = "plux/data/";                  // publishing topic for plug, will be cominbed with MAC address later
-const char* mqttCtrlTopic    = "plux/control/";               // subscribing topic for plug, will be cominbed with MAC address later
-const char* mqttServer       = "mosquitto.projectplux.info";
-const int   mqttPort         = 1883;                          // 1883 = insecure port, 8883 = secure port (via TLS)
-const char* mqttUser         = "eric";
-const char* mqttPassword     = "truong";
+String mqttDataTopic    = "plux/data/";                             // publishing topic for plug, will be cominbed with MAC address later
+String mqttCtrlTopic    = "plux/control/";                          // subscribing topic for plug, will be cominbed with MAC address later
+String mqttServer       = "mosquitto.projectplux.info";
+const int   mqttPort         = 1883;                                // 1883 = insecure port, 8883 = secure port (via TLS)
+String mqttUser         = "eric";
+String mqttPassword     = "truong";
 
 // Static variables
 static char mqtt_msg[MAX_TIME_LEN + MAX_MSG];                                           // buffer for MQTT message (timestamp + power)
 static char mac_addr[MAC_ADDR_LEN];                                                     // buffer for MAC address (48 bits/8 = 6 bytes);
-static char mqttDataTopicStr[10 + MAC_ADDR_LEN + 1];                                    // buffer for data topic name
-static char mqttCtrlTopicStr[13 + MAC_ADDR_LEN + 1];                                    // buffer for ctrl topic name
+String mqttDataTopicStr;                                    // buffer for data topic name
+String mqttCtrlTopicStr;                                    // buffer for ctrl topic name
 
 // Object constructors
 ACS712  ACS(A2, 5.0, 4095, 66);      // call ACS712.h constructor for 30A variant
@@ -84,7 +84,7 @@ void setup() {
     Serial.println(mqttDataTopicStr);
   }
 
-  ret = client.subscribe(mqttCtrlTopicStr, 0);                // subscribe to MQTT control topic
+  ret = client.subscribe(mqttCtrlTopicStr.c_str(), 0);                // subscribe to MQTT control topic
   if (!ret) {
     Serial.println("setup(): unable to subscribe to MQTT server topic");
     return;
@@ -112,7 +112,7 @@ void loop() {
   sprintf(mqtt_msg, "%s, %d", displayTime, mA);                 // convert number to string in string buffer
   memset(displayTime, '\0', MAX_TIME_LEN);                      // reset time buffer
   
-  int ret = client.publish(mqttDataTopicStr, mqtt_msg, false);  // send power data as string to MQTT data topic
+  int ret = client.publish(mqttDataTopicStr.c_str(), mqtt_msg, false);  // send power data as string to MQTT data topic
   if (!ret) {
     Serial.println("loop(): unable to publish MQTT message");          
   } else {
@@ -143,10 +143,10 @@ static void printLocalTime(){
  *  
  */
 static int mqtt_setup() {
-  client.setServer(mqttServer, mqttPort);                         // set destination server
+  client.setServer(mqttServer.c_str(), mqttPort);                         // set destination server
   while (!client.connected()) {
     Serial.println("mqtt_setup(): Connecting to MQTT...");
-    if (client.connect("", mqttUser, mqttPassword)) {
+    if (client.connect("", mqttUser.c_str(), mqttPassword.c_str())) {
       Serial.println("mqtt_setup(): client connected");
     } else {
       Serial.print("mqtt_setup(): failed with state ");           // error message, print out failure state
@@ -154,13 +154,13 @@ static int mqtt_setup() {
       delay(1000);
     }
   }
-
   client.setCallback(msg_receive);                                // set callback function for receiving messages
   
-  sprintf(mqttDataTopicStr, "%s%s", mqttDataTopic, mac_addr);     // print concatenated string to data topic buffer
-  sprintf(mqttCtrlTopicStr, "%s%s",  mqttCtrlTopic, mac_addr);    // print concatenated string to control topic buffer
+  //sprintf(mqttDataTopicStr, "%s%s", mqttDataTopic, mac_addr);     // print concatenated string to data topic buffer
+  //sprintf(mqttCtrlTopicStr, "%s%s",  mqttCtrlTopic, mac_addr);    // print concatenated string to control topic buffer
+  mqttDataTopicStr = mqttDataTopic + WiFi.macAddress();
+  mqttCtrlTopicStr = mqttCtrlTopic + WiFi.macAddress();
   
-//  client.publish(mqttDataTopicStr, "mqtt_stetup(): complete");  // complete connection to MQTT data topic
   Serial.println("mqtt_stetup(): complete");
   return 0;
 }
