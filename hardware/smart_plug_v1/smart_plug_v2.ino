@@ -224,4 +224,3 @@ static int running_average(float data){
   }
   return 0;
 }
-}
