@@ -66,10 +66,11 @@ void setup() {
   pinMode(RELAY, OUTPUT);                                     // set RELAY pin to output mode
   Serial.println(__FILE__);
 
-  wm.resetSettings();                                           // comment this out when not testing
+  wm.resetSettings();                                           // comment this out when not testing (reminder: IP is 192.168.4.1)
   bool res = wm.autoConnect("PLUX", "12345678");                // use WiFi manager to dynamically add SSID/password
   if (!res) {
     Serial.println("setup(): connection failed");
+    return;
   } else {
     Serial.println("setup(): connection successful");
   }
