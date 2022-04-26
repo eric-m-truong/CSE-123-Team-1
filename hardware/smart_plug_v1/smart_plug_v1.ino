@@ -1,9 +1,8 @@
-#include <WebServer.h>
+#include <WiFiManager.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 
 #include "ACS712.h"
-#include "EEPROM.h"
 #include "time.h"
 
 // ESP32 Pins
@@ -48,19 +47,18 @@ static char mqttCtrlTopicStr[13 + MAC_ADDR_LEN + 1];                            
 ACS712  ACS(A2, 5.0, 4095, 66);      // call ACS712.h constructor for 30A variant
 WiFiClient espClient;                // call WiFi constructor
 PubSubClient client(espClient);      // call MQTT constructor
+WiFiManager wm;                      // call WiFi manager constructor (source: https://dronebotworkshop.com/wifimanager/)
 
 // Function declarations - General
 static void printLocalTime();
-
-// Function declarations - Network
-static int network_setup();
 
 // Function declarations - MQTT
 static int mqtt_setup();
 static void msg_receive(char *topic, byte* payload, unsigned int length);
 
 /* initialization function for ESP32
- * source: https://github.com/RobTillaart/ACS712/blob/master/examples/ACS712_20_AC/ACS712_20_AC.ino
+ * sources: https://github.com/RobTillaart/ACS712/blob/master/examples/ACS712_20_AC/ACS712_20_AC.ino
+ *          https://dronebotworkshop.com/wifimanager/
  */
 void setup() { 
   Serial.begin(115200);                                       // set up baud rate for debugging
@@ -68,22 +66,15 @@ void setup() {
   pinMode(RELAY, OUTPUT);                                     // set RELAY pin to output mode
   Serial.println(__FILE__);
 
-//  int ret = get_network_info();                               // dynamically obtain SSID and password
-//  if (ret) {
-//    Serial.println("setup(): obtaining SSID and password failed");
-//    return;
-//  }
-  
-  int ret = network_setup();                                      // attempt network connection
-  if (ret) {
-    Serial.println("setup(): network connection failed");
-    return;
+  wm.resetSettings();                                           // comment this out when not testing
+  bool res = wm.autoConnect("PLUX", "12345678");                // use WiFi manager to dynamically add SSID/password
+  if (!res) {
+    Serial.println("setup(): connection failed");
+  } else {
+    Serial.println("setup(): connection successful");
   }
-  strncpy(mac_addr, WiFi.macAddress().c_str(), MAC_ADDR_LEN); // save MAC address as string
-  Serial.print("setup(): MAC address - ");
-  Serial.println(WiFi.macAddress());
   
-  ret = mqtt_setup();                                         // attempt MQTT server connection
+  int ret = mqtt_setup();                                         // attempt MQTT server connection
   if (ret) {
     Serial.println("setup(): unable to connect to MQTT server");
     return;
@@ -145,33 +136,6 @@ static void printLocalTime(){
 //  Serial.print("printLocaltime(): ");
 //  Serial.println(&timeinfo, "%Y-%m-%d %H:%M:%S");
   strftime(displayTime, MAX_TIME_LEN, "%Y-%m-%d %H:%M:%S", &timeinfo);
-}
-
-/* helper function for connecting to Internet
- * sources: https://randomnerdtutorials.com/esp32-useful-wi-fi-functions-arduino/
- *          https://github.com/espressif/arduino-esp32/blob/master/libraries/WiFiClientSecure/examples/WiFiClientSecure/WiFiClientSecure.ino
- */
-static int network_setup() {
-  
-  WiFi.mode(WIFI_STA);                                              // WiFi connection process
-  WiFi.begin(ssid.c_str(), password.c_str());
-  Serial.print("network_setup(): Connecting to WiFi ..");
-  
-  int cnt_retry = 0;
-  while (WiFi.status() != WL_CONNECTED && (cnt_retry < MAX_RETRY)) { // attempt connection multiple times
-    Serial.print('.');
-    delay(1000);
-    cnt_retry++;
-  }
-  if (cnt_retry >= MAX_RETRY) {
-    Serial.println("Unable to connect, max retry limit reached");
-    return 1;
-  } else {
-//    espClient.setCACert(test_root_ca); // for encryption, not used
-    Serial.println(WiFi.localIP());
-    return 0;
-  }
-  
 }
 
 /* initialization of MQTT connection
