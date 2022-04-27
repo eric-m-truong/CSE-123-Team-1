@@ -45,3 +45,17 @@ run `script/venv`
 # running
 
 run `run`
+
+## notes about oracle server
+
+python3.10 on ubuntu is messy. See [1]
+
+```
+add-apt-repository ppa:deadsnakes/ppa
+add-apt update
+apt-get install python3.10{,-venv,-distutils}
+```
+
+at this point, the `python3.10` may run without the virtual environment.
+
+[1]: https://stackoverflow.com/a/59334690
