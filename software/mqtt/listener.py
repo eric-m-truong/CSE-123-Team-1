@@ -44,10 +44,9 @@ def run():
 
   def on_message(client, userdata, message):
     topic, mac_addr = message.topic.split('/')[-2:]
-    match topic:
-      case 'data':
+    if topic == 'data':
         parse_data_message(mac_addr, message)
-      case 'ack':
+    elif topic == 'ack':
         parse_ack_message(mac_addr, message)
 
 
