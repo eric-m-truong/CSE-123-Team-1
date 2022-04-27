@@ -1,8 +1,13 @@
-#!/usr/bin/bash
+#!/bin/bash
+
+name=$(basename "$0")
 
 if ! [ -f "bin/activate" ]; then
-  printf "rtfm"
-  ./script/venv
+  printf "$name: rtfm\n"
+  if ! [ ./script/venv ]; then
+    printf "$name: installation of venv failed"
+    exit 1
+  fi
 fi
 
 source bin/activate
