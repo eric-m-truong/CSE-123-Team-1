@@ -1,3 +1,25 @@
+# installation
+
+run `script/venv` (you _could_ also run script/run, it will run this if needed)
+
+# running
+
+run `script/run`
+
+## notes about oracle server
+
+python3.10 on ubuntu is messy. See [1]
+
+```
+add-apt-repository ppa:deadsnakes/ppa
+add-apt update
+apt-get install python3.10{,-venv,-distutils}
+```
+
+at this point, the `python3.10` may run without the virtual environment.
+
+[1]: https://stackoverflow.com/a/59334690
+
 # each directory should have a readme that contains
 
 - usage
@@ -37,25 +59,3 @@ plot|module that contains various bokeh plots to be used in html webpages
 mqtt|scripts intended primarily to interact with and maintain an mqtt connection
 
 future: test dir for testing aspects of server?
-
-# installation
-
-run `script/venv` (you _could_ also run script/run, it will run this if needed)
-
-# running
-
-run `script/run`
-
-## notes about oracle server
-
-python3.10 on ubuntu is messy. See [1]
-
-```
-add-apt-repository ppa:deadsnakes/ppa
-add-apt update
-apt-get install python3.10{,-venv,-distutils}
-```
-
-at this point, the `python3.10` may run without the virtual environment.
-
-[1]: https://stackoverflow.com/a/59334690
