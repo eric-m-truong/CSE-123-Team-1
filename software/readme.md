@@ -40,11 +40,11 @@ future: test dir for testing aspects of server?
 
 # installation
 
-run `script/venv`
+run `script/venv` (you _could_ also run script/run, it will run this if needed)
 
 # running
 
-run `run`
+run `script/run`
 
 ## notes about oracle server
 
