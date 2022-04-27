@@ -81,7 +81,7 @@ def list_plugs():
   plugs = [(mac, alias if alias else mac, status)
       for mac, alias, status in execute(con, "SELECT * FROM Plugs").fetchall()]
   con.close()
-  return render_template("lp.html", plugs=plugs)
+  return render_template("powerlist.html", plugs=plugs)
 
 
 @app.route("/alias", methods = ['POST', 'GET'])
