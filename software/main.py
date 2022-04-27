@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import logging
 import argparse
 from importlib import import_module

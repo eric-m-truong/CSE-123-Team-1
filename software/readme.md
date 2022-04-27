@@ -37,3 +37,11 @@ plot|module that contains various bokeh plots to be used in html webpages
 mqtt|scripts intended primarily to interact with and maintain an mqtt connection
 
 future: test dir for testing aspects of server?
+
+# installation
+
+run `script/venv`
+
+# running
+
+run `run`
