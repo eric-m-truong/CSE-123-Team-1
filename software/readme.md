@@ -4,7 +4,8 @@ run `script/venv` (you _could_ also run script/run, it will run this if needed)
 
 # running
 
-run `script/run`
+run `script/run [args]` where args are flags that will be passed onto main.py.
+passing `--help` will list flags.
 
 ## notes about oracle server
 
