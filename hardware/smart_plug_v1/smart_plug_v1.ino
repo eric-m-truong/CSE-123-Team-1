@@ -1,6 +1,7 @@
 #include <WiFiManager.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
+#include <ZMPT101B.h>
 
 #include "ACS712.h"
 #include "time.h"
@@ -33,21 +34,22 @@ String password     = "yaaabruh";                                   // password 
 String mqttDataTopic    = "plux/data/";                             // publishing topic for plug, will be cominbed with MAC address later
 String mqttCtrlTopic    = "plux/control/";                          // subscribing topic for plug, will be cominbed with MAC address later
 String mqttServer       = "mosquitto.projectplux.info";
-const int   mqttPort         = 1883;                                // 1883 = insecure port, 8883 = secure port (via TLS)
+const int mqttPort      = 1883;                                     // 1883 = insecure port, 8883 = secure port (via TLS)
 String mqttUser         = "eric";
 String mqttPassword     = "truong";
 
 // Static variables
-static char mqtt_msg[MAX_TIME_LEN + MAX_MSG];                                           // buffer for MQTT message (timestamp + power)
-static char mac_addr[MAC_ADDR_LEN];                                                     // buffer for MAC address (48 bits/8 = 6 bytes);
+static char mqtt_msg[MAX_TIME_LEN + MAX_MSG];               // buffer for MQTT message (timestamp + power)
+static char mac_addr[MAC_ADDR_LEN];                         // buffer for MAC address (48 bits/8 = 6 bytes);
 String mqttDataTopicStr;                                    // buffer for data topic name
 String mqttCtrlTopicStr;                                    // buffer for ctrl topic name
 
 // Object constructors
-ACS712  ACS(A2, 5.0, 4095, 66);      // call ACS712.h constructor for 30A variant
-WiFiClient espClient;                // call WiFi constructor
-PubSubClient client(espClient);      // call MQTT constructor
-WiFiManager wm;                      // call WiFi manager constructor (source: https://dronebotworkshop.com/wifimanager/)
+ACS712  ACS(CUR_SENSOR, 5.0, 4095, 66);      // call ACS712.h constructor for 30A variant
+ZMPT101B ZMPT(VOLT_SENSOR);                  // call ZMPT101B constructor
+WiFiClient espClient;                        // call WiFi constructor
+PubSubClient client(espClient);              // call MQTT constructor
+WiFiManager wm;                              // call WiFi manager constructor (source: https://dronebotworkshop.com/wifimanager/)
 
 // Function declarations - General
 static void printLocalTime();
@@ -98,12 +100,14 @@ void setup() {
                                                               // 3600: DST offset
 
   ACS.autoMidPoint(1);                                        // change this value to refine accuracy
+  ZMPT.calibrate();
 }
 
 /* main function for power monitoring and data transmission/reception
  * sources: https://randomnerdtutorials.com/esp32-mqtt-publish-subscribe-arduino-ide/
  */ 
 void loop() {
+//  float volts = getVoltageAC(WALL_FREQ);                      // measurve AC voltage
   int mA = ACS.mA_AC(WALL_FREQ);                                // measure AC current
   float watts = (WALL_VOLT * mA) / 1000;                        // calculate power
   client.loop();                                                // keep listening on MQTT topic
@@ -116,6 +120,10 @@ void loop() {
   if (!ret) {
     Serial.println("loop(): unable to publish MQTT message");          
   } else {
+//    Serial.print("Voltage: ");
+//    Serial.print(volts);
+//    Serial.print("Current: ");
+//    Serial.print(mA / 1000);
     Serial.print("Data: ");
     Serial.print(mA);
     Serial.println(" | loop(): MQTT message published");
