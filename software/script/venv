@@ -1,0 +1,11 @@
+#!/bin/bash
+
+name=$(basename "$0")
+req="requirements.txt"
+
+[ -f "$req" ] \
+  && python3.10 -m venv . \
+  && source bin/activate \
+  && python -m pip install -r $req \
+  && deactivate \
+  && printf "$name: install complete\n"
