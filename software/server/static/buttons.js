@@ -120,9 +120,9 @@ function sendSignal() {
   //console.log(2);
 }
 
-
+console.log("Don't mind me.\n");
 window.onload = getAllPlugs();
-client = new Paho.MQTT.Client("mosquitto.projectplux.info", Number(443), "clientId1234");
+client = new Paho.MQTT.Client("mosquitto.projectplux.info", Number(15676), "clientId1234");
 // set callback handlers
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
