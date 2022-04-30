@@ -1,13 +1,14 @@
+#include <ACS712.h>
+#include <ZMPT101B.h>
 #include <WiFiManager.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 
-#include "ACS712.h"
 #include "time.h"
 
 // ESP32 Pins
-#define CUR_SENSOR A3                 // adjust pins as necessary
-#define VOLT_SENSOR A2
+#define CUR_SENSOR A2                 // adjust pins as necessary
+#define VOLT_SENSOR A3
 #define RELAY 15
 
 // Constants
@@ -25,10 +26,6 @@ const char* ntpServer = "pool.ntp.org";
 unsigned long epochTime; 
 char displayTime[MAX_TIME_LEN];
 
-// Network
-String ssid         = "iPhone";                                     // SSID of network to be connected to
-String password     = "yaaabruh";                                   // password of network to be connected to
-
 // MQTT
 String mqttDataTopic    = "plux/data/";                             // publishing topic for plug, will be cominbed with MAC address later
 String mqttCtrlTopic    = "plux/control/";                          // subscribing topic for plug, will be cominbed with MAC address later
@@ -45,10 +42,11 @@ String mqttCtrlTopicStr;                                                        
 unsigned long previousMillis = 0;                                                       // used for delay
 
 // Object constructors
-ACS712  ACS(A2, 5.0, 4095, 66);      // call ACS712.h constructor for 30A variant
-WiFiClient espClient;                // call WiFi constructor
-PubSubClient client(espClient);      // call MQTT constructor
-WiFiManager wm;                      // call WiFi manager constructor (source: https://dronebotworkshop.com/wifimanager/)
+ZMPT101B ZMPT(VOLT_SENSOR);                  // call ZMPT101B constructor
+ACS712  ACS(ACS712_30A, CUR_SENSOR);         // call ACS712.h constructor for 30A variant
+WiFiClient espClient;                        // call WiFi constructor
+PubSubClient client(espClient);              // call MQTT constructor
+WiFiManager wm;                              // call WiFi manager constructor (source: https://dronebotworkshop.com/wifimanager/)
 
 // Function declarations - General
 static void printLocalTime();
@@ -99,8 +97,9 @@ void setup() {
   configTime(-28800, 3600, ntpServer);                        // configure time format for display
                                                               // -28800: UTC-8
                                                               // 3600: DST offset
-
-  ACS.autoMidPoint(WALL_FREQ);                                // change this value to refine accuracy
+                                                              
+  ZMPT.calibrate();                                           // calibrate voltage sensor
+  ACS.calibrate();                                            // calibrate current sensor
 }
 
 /* main function for power monitoring and data transmission/reception
@@ -108,18 +107,20 @@ void setup() {
  */ 
 void loop() {
 
-  unsigned long currentMillis = millis(); // get current time
+  unsigned long currentMillis = millis();                         // get current time
+
+  client.loop();                                                  // keep listening on MQTT topic
 
   if (currentMillis - previousMillis >= DELAY_MS) {
     
     previousMillis = currentMillis; // update previous timer value
 
-    float mA = ACS.mA_AC(WALL_FREQ);                              // measure AC current
-    float watts = (WALL_VOLT * mA);                               // calculate power
-    client.loop();                                                // keep listening on MQTT topic
+    float volts = ZMPT.getVoltageAC(WALL_FREQ) / sqrt(2);         // measure AC RMS voltage
+    float amps = ACS.getCurrentAC(WALL_FREQ) / sqrt(2);           // measure AC RMS current
+    float watts = (volts * amps);                                 // calculate power
   
     printLocalTime();                                             // get timestamp and place in local buffer
-    sprintf(mqtt_msg, "%s, %f", displayTime, watts / 3000);       // convert number to string in string buffer
+    sprintf(mqtt_msg, "%s, %f", displayTime, watts / 2.5);        // convert number to string in string buffer (must divide by 2.5 because of error margins)
     memset(displayTime, '\0', MAX_TIME_LEN);                      // reset time buffer
     
     int ret = client.publish(mqttDataTopicStr.c_str(), mqtt_msg, false);  // send power data as string to MQTT data topic
