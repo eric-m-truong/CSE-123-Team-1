@@ -1,14 +1,14 @@
+#include <ACS712.h>
+#include <ZMPT101B.h>
 #include <WiFiManager.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
-#include <ZMPT101B.h>
 
-#include "ACS712.h"
 #include "time.h"
 
 // ESP32 Pins
-#define CUR_SENSOR A3                 // adjust pins as necessary
-#define VOLT_SENSOR A2
+#define CUR_SENSOR A2                 // adjust pins as necessary
+#define VOLT_SENSOR A3
 #define RELAY 15
 
 // Constants
@@ -26,27 +26,24 @@ const char* ntpServer = "pool.ntp.org";
 unsigned long epochTime; 
 char displayTime[MAX_TIME_LEN];
 
-// Network
-String ssid         = "iPhone";                                     // SSID of network to be connected to
-String password     = "yaaabruh";                                   // password of network to be connected to
-
 // MQTT
 String mqttDataTopic    = "plux/data/";                             // publishing topic for plug, will be cominbed with MAC address later
 String mqttCtrlTopic    = "plux/control/";                          // subscribing topic for plug, will be cominbed with MAC address later
 String mqttServer       = "mosquitto.projectplux.info";
-const int mqttPort      = 1883;                                     // 1883 = insecure port, 8883 = secure port (via TLS)
+const int   mqttPort         = 1883;                                // 1883 = insecure port, 8883 = secure port (via TLS)
 String mqttUser         = "eric";
 String mqttPassword     = "truong";
 
 // Static variables
-static char mqtt_msg[MAX_TIME_LEN + MAX_MSG];               // buffer for MQTT message (timestamp + power)
-static char mac_addr[MAC_ADDR_LEN];                         // buffer for MAC address (48 bits/8 = 6 bytes);
-String mqttDataTopicStr;                                    // buffer for data topic name
-String mqttCtrlTopicStr;                                    // buffer for ctrl topic name
+static char mqtt_msg[MAX_TIME_LEN + MAX_MSG];                                           // buffer for MQTT message (timestamp + power)
+static char mac_addr[MAC_ADDR_LEN];                                                     // buffer for MAC address (48 bits/8 = 6 bytes);
+String mqttDataTopicStr;                                                                // buffer for data topic name
+String mqttCtrlTopicStr;                                                                // buffer for ctrl topic name
+unsigned long previousMillis = 0;                                                       // used for delay
 
 // Object constructors
-ACS712  ACS(CUR_SENSOR, 5.0, 4095, 66);      // call ACS712.h constructor for 30A variant
 ZMPT101B ZMPT(VOLT_SENSOR);                  // call ZMPT101B constructor
+ACS712  ACS(ACS712_30A, CUR_SENSOR);         // call ACS712.h constructor for 30A variant
 WiFiClient espClient;                        // call WiFi constructor
 PubSubClient client(espClient);              // call MQTT constructor
 WiFiManager wm;                              // call WiFi manager constructor (source: https://dronebotworkshop.com/wifimanager/)
@@ -68,7 +65,9 @@ void setup() {
   pinMode(RELAY, OUTPUT);                                     // set RELAY pin to output mode
   Serial.println(__FILE__);
 
-  wm.resetSettings();                                           // comment this out when not testing (reminder: IP is 192.168.4.1)
+  if (digitalRead(12) == HIGH) {
+    wm.resetSettings(); // debug: reset if pin 12 is high
+  }
   bool res = wm.autoConnect("PLUX", "12345678");                // use WiFi manager to dynamically add SSID/password
   if (!res) {
     Serial.println("setup(): connection failed");
@@ -98,38 +97,44 @@ void setup() {
   configTime(-28800, 3600, ntpServer);                        // configure time format for display
                                                               // -28800: UTC-8
                                                               // 3600: DST offset
-
-  ACS.autoMidPoint(1);                                        // change this value to refine accuracy
-  ZMPT.calibrate();
+                                                              
+  ZMPT.calibrate();                                           // calibrate voltage sensor
+  ACS.calibrate();                                            // calibrate current sensor
 }
 
 /* main function for power monitoring and data transmission/reception
  * sources: https://randomnerdtutorials.com/esp32-mqtt-publish-subscribe-arduino-ide/
  */ 
 void loop() {
-//  float volts = getVoltageAC(WALL_FREQ);                      // measurve AC voltage
-  int mA = ACS.mA_AC(WALL_FREQ);                                // measure AC current
-  float watts = (WALL_VOLT * mA) / 1000;                        // calculate power
-  client.loop();                                                // keep listening on MQTT topic
 
-  printLocalTime();                                             // get timestamp and place in local buffer
-  sprintf(mqtt_msg, "%s, %d", displayTime, mA);                 // convert number to string in string buffer
-  memset(displayTime, '\0', MAX_TIME_LEN);                      // reset time buffer
+  unsigned long currentMillis = millis();                         // get current time
+
+  client.loop();                                                  // keep listening on MQTT topic
+
+  if (currentMillis - previousMillis >= DELAY_MS) {
+    
+    previousMillis = currentMillis; // update previous timer value
+
+    float volts = ZMPT.getVoltageAC(WALL_FREQ) / sqrt(2);         // measure AC RMS voltage
+    float amps = ACS.getCurrentAC(WALL_FREQ) / sqrt(2);           // measure AC RMS current
+    float watts = (volts * amps);                                 // calculate power
   
-  int ret = client.publish(mqttDataTopicStr.c_str(), mqtt_msg, false);  // send power data as string to MQTT data topic
-  if (!ret) {
-    Serial.println("loop(): unable to publish MQTT message");          
-  } else {
-//    Serial.print("Voltage: ");
-//    Serial.print(volts);
-//    Serial.print("Current: ");
-//    Serial.print(mA / 1000);
-    Serial.print("Data: ");
-    Serial.print(mA);
-    Serial.println(" | loop(): MQTT message published");
+    printLocalTime();                                             // get timestamp and place in local buffer
+    sprintf(mqtt_msg, "%s, %f", displayTime, watts / 2.5);        // convert number to string in string buffer (must divide by 2.5 because of error margins)
+    memset(displayTime, '\0', MAX_TIME_LEN);                      // reset time buffer
+    
+    int ret = client.publish(mqttDataTopicStr.c_str(), mqtt_msg, false);  // send power data as string to MQTT data topic
+    if (!ret) {
+      Serial.println("loop(): unable to publish MQTT message");          
+    } /*else {
+      Serial.print("Data: ");
+      Serial.print(mA);
+      Serial.println(" | loop(): MQTT message published");
+    }*/
+    
+    memset(mqtt_msg, '\0', MAX_MSG);                              // reset static buffer
+    
   }
-  memset(mqtt_msg, '\0', MAX_MSG);                              // reset static buffer
-  delay(DELAY_MS);
 }
 
 /* helper function that gets current epoch time
@@ -164,10 +169,8 @@ static int mqtt_setup() {
   }
   client.setCallback(msg_receive);                                // set callback function for receiving messages
   
-  //sprintf(mqttDataTopicStr, "%s%s", mqttDataTopic, mac_addr);     // print concatenated string to data topic buffer
-  //sprintf(mqttCtrlTopicStr, "%s%s",  mqttCtrlTopic, mac_addr);    // print concatenated string to control topic buffer
-  mqttDataTopicStr = mqttDataTopic + WiFi.macAddress();
-  mqttCtrlTopicStr = mqttCtrlTopic + WiFi.macAddress();
+  mqttDataTopicStr = mqttDataTopic + WiFi.macAddress();             // print concatenated string to data topic buffer
+  mqttCtrlTopicStr = mqttCtrlTopic + WiFi.macAddress();             // print concatenated string to control topic buffer
   
   Serial.println("mqtt_stetup(): complete");
   return 0;
