@@ -40,8 +40,9 @@ String mqttPassword     = "truong";
 // Static variables
 static char mqtt_msg[MAX_TIME_LEN + MAX_MSG];                                           // buffer for MQTT message (timestamp + power)
 static char mac_addr[MAC_ADDR_LEN];                                                     // buffer for MAC address (48 bits/8 = 6 bytes);
-String mqttDataTopicStr;                                    // buffer for data topic name
-String mqttCtrlTopicStr;                                    // buffer for ctrl topic name
+String mqttDataTopicStr;                                                                // buffer for data topic name
+String mqttCtrlTopicStr;                                                                // buffer for ctrl topic name
+unsigned long previousMillis = 0;                                                       // used for delay
 
 // Object constructors
 ACS712  ACS(A2, 5.0, 4095, 66);      // call ACS712.h constructor for 30A variant
@@ -66,7 +67,9 @@ void setup() {
   pinMode(RELAY, OUTPUT);                                     // set RELAY pin to output mode
   Serial.println(__FILE__);
 
-  wm.resetSettings();                                           // comment this out when not testing (reminder: IP is 192.168.4.1)
+  if (digitalRead(12) == HIGH) {
+    wm.resetSettings(); // debug: reset if pin 12 is high
+  }
   bool res = wm.autoConnect("PLUX", "12345678");                // use WiFi manager to dynamically add SSID/password
   if (!res) {
     Serial.println("setup(): connection failed");
@@ -97,31 +100,40 @@ void setup() {
                                                               // -28800: UTC-8
                                                               // 3600: DST offset
 
-  ACS.autoMidPoint(1);                                        // change this value to refine accuracy
+  ACS.autoMidPoint(WALL_FREQ);                                // change this value to refine accuracy
 }
 
 /* main function for power monitoring and data transmission/reception
  * sources: https://randomnerdtutorials.com/esp32-mqtt-publish-subscribe-arduino-ide/
  */ 
 void loop() {
-  int mA = ACS.mA_AC(WALL_FREQ);                                // measure AC current
-  float watts = (WALL_VOLT * mA) / 1000;                        // calculate power
-  client.loop();                                                // keep listening on MQTT topic
 
-  printLocalTime();                                             // get timestamp and place in local buffer
-  sprintf(mqtt_msg, "%s, %d", displayTime, mA);                 // convert number to string in string buffer
-  memset(displayTime, '\0', MAX_TIME_LEN);                      // reset time buffer
+  unsigned long currentMillis = millis(); // get current time
+
+  if (currentMillis - previousMillis >= DELAY_MS) {
+    
+    previousMillis = currentMillis; // update previous timer value
+
+    float mA = ACS.mA_AC(WALL_FREQ);                              // measure AC current
+    float watts = (WALL_VOLT * mA);                               // calculate power
+    client.loop();                                                // keep listening on MQTT topic
   
-  int ret = client.publish(mqttDataTopicStr.c_str(), mqtt_msg, false);  // send power data as string to MQTT data topic
-  if (!ret) {
-    Serial.println("loop(): unable to publish MQTT message");          
-  } else {
-    Serial.print("Data: ");
-    Serial.print(mA);
-    Serial.println(" | loop(): MQTT message published");
+    printLocalTime();                                             // get timestamp and place in local buffer
+    sprintf(mqtt_msg, "%s, %f", displayTime, watts / 3000);       // convert number to string in string buffer
+    memset(displayTime, '\0', MAX_TIME_LEN);                      // reset time buffer
+    
+    int ret = client.publish(mqttDataTopicStr.c_str(), mqtt_msg, false);  // send power data as string to MQTT data topic
+    if (!ret) {
+      Serial.println("loop(): unable to publish MQTT message");          
+    } /*else {
+      Serial.print("Data: ");
+      Serial.print(mA);
+      Serial.println(" | loop(): MQTT message published");
+    }*/
+    
+    memset(mqtt_msg, '\0', MAX_MSG);                              // reset static buffer
+    
   }
-  memset(mqtt_msg, '\0', MAX_MSG);                              // reset static buffer
-  delay(DELAY_MS);
 }
 
 /* helper function that gets current epoch time
@@ -156,10 +168,8 @@ static int mqtt_setup() {
   }
   client.setCallback(msg_receive);                                // set callback function for receiving messages
   
-  //sprintf(mqttDataTopicStr, "%s%s", mqttDataTopic, mac_addr);     // print concatenated string to data topic buffer
-  //sprintf(mqttCtrlTopicStr, "%s%s",  mqttCtrlTopic, mac_addr);    // print concatenated string to control topic buffer
-  mqttDataTopicStr = mqttDataTopic + WiFi.macAddress();
-  mqttCtrlTopicStr = mqttCtrlTopic + WiFi.macAddress();
+  mqttDataTopicStr = mqttDataTopic + WiFi.macAddress();             // print concatenated string to data topic buffer
+  mqttCtrlTopicStr = mqttCtrlTopic + WiFi.macAddress();             // print concatenated string to control topic buffer
   
   Serial.println("mqtt_stetup(): complete");
   return 0;
