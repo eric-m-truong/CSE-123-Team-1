@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from bokeh.palettes import viridis
-from bokeh.plotting import figure, save, show
+from bokeh.plotting import figure, save, show, output_file
 from bokeh.resources import CDN
 from bokeh.embed import file_html
 
@@ -33,6 +33,9 @@ def generate():
 
   con.close()
 
+  #File Code
+  output_file(filename="server/templates/stacked.html", title="Stacked HTML File")
+
   # Get list of keys now, before we add x data
   names = list(data.keys())
 
@@ -59,5 +62,17 @@ def generate():
 
   p.legend.orientation = "horizontal"
   p.legend.background_fill_color = "#fafafa"
+
+  #p.axis.axis_label=None
+  #p.axis.visible=False
+  p.grid.grid_line_color = None
+  p.outline_line_color = None
+  p.toolbar.logo = None
+  p.toolbar_location = None
+  p.sizing_mode='stretch_both';
+  p.outline_line_alpha = 0;
+  p.border_fill_alpha = 0;
+
+  save(p)
 
   return file_html(p, CDN)

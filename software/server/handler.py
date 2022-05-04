@@ -21,6 +21,13 @@ def serve_static(path):
 def serve_donut_tot():
   return donut_tot.generate()
 
+@app.route('/donut.html')
+def gimme_a_donut():
+  return render_template('donut.html')
+
+@app.route('/stacked.html')
+def gimme_a_stack():
+  return render_template('stacked.html')
 
 @app.route('/stacked')
 def serve_stacked():
@@ -83,13 +90,15 @@ def root():
   con.close()
   return render_template("powerlist.html", plugs=plugs)
 
+
 @app.route("/home")
 def home():
   con = connect()
   plugs = [(mac, alias if alias else mac, status)
       for mac, alias, status in execute(con, "SELECT * FROM Plugs").fetchall()]
   con.close()
-  return render_template("power.html", plugs=plugs)
+  return render_template("power.html", plugs=plugs, donut=donut_tot.generate(), stacked=stacked.generate())
+
 
 @app.route("/alias", methods = ['POST', 'GET'])
 def give_alias():
