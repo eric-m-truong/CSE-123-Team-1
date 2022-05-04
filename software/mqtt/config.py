@@ -1,7 +1,7 @@
 import json
 import sys
 from pathlib import Path
-
+from mergedeep import merge, Strategy
 
 CONFIG_PATH = 'config.json'
 
@@ -17,6 +17,7 @@ default = {
      },
 }
 
+
 def init():
   assert not Path(CONFIG_PATH).exists()
   with open(CONFIG_PATH, 'w') as cfg:
@@ -24,12 +25,12 @@ def init():
 
 
 this = sys.modules[__name__].__dict__
-this.update(default) # ensure there is always a default value
+merge(this, default, strategy=Strategy.REPLACE) # ensure always defaults
 
 try:
   with open(CONFIG_PATH) as cfg:
     j = json.load(cfg)
-    this.update(j)
+    merge(this, j, strategy=Strategy.REPLACE)
 except FileNotFoundError:
   print(f'initialized config with default values at {CONFIG_PATH}',
          'change these values to your own broker')
