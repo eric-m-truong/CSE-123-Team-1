@@ -18,6 +18,10 @@ parser.add_argument('--dummy', '-d',
                     action=argparse.BooleanOptionalAction,
                     default=False,
                     help='Generate dummy plug data.')
+parser.add_argument('--broker', '-b',
+                    action=argparse.BooleanOptionalAction,
+                    default=False,
+                    help='Run a local broker.')
 args = parser.parse_args()
 
 format = '%(levelname)s:%(module)s:%(message)s'
@@ -31,14 +35,16 @@ if args.provision:
 # order matters here unfortunately. flask must come last so it isn't the
 # processt the dispatcher waits for. if it is, it will eat one of our
 # KeyboardInterrupt signals.
-es = [lambda: exec('mosquitto', ['-c', 'script/mosquitto.conf']),
-      lambda: execfn(listener.run),
+es = [lambda: execfn(listener.run),
       lambda: execfn(handler.app.run,
         host='0.0.0.0', # listen on all addresses: accessible outside localhost
         port=5000,
         debug=False # don't show python errors in browser on error
         )
      ]
+
+if args.broker:
+  es.insert(0, lambda: exec('mosquitto', ['-c', 'script/mosquitto.conf']))
 
 if args.dummy:
   es.insert(1, lambda: execfn(import_module('mqtt.datagen').run))
