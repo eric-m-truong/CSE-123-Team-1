@@ -44,7 +44,22 @@ es = [lambda: execfn(listener.run),
      ]
 
 if args.broker:
-  es.insert(0, lambda: exec('mosquitto', ['-c', 'script/mosquitto.conf']))
+  import inspect
+
+  ports = config.broker['port']
+  mqtt_port, ws_port = ports['mqtt'], ports['websocket']
+  mosquitto_conf = f"""listener {mqtt_port}
+                       protocol mqtt
+
+                       listener {ws_port}
+                       protocol websockets
+
+                       allow_anonymous true"""
+  mosquitto_conf_clean = inspect.cleandoc(mosquitto_conf) # remove indent
+  with open('mosquitto.conf', 'w') as f:
+    f.write(mosquitto_conf_clean)
+
+  es.insert(0, lambda: exec('mosquitto', ['-c',  'mosquitto.conf']))
 
 if args.dummy:
   es.insert(1, lambda: execfn(import_module('mqtt.datagen').run))
