@@ -8,6 +8,7 @@ from script import dispatcher
 from mqtt import listener, config # read config now so forks won't read again
 from server import handler
 
+
 parser = argparse.ArgumentParser(description='Run plux server.')
 parser.add_argument('--provision', '-p',
                     action=argparse.BooleanOptionalAction,
@@ -45,6 +46,7 @@ es = [lambda: execfn(listener.run),
 
 if args.broker:
   import inspect
+  import tempfile
 
   ports = config.broker['port']
   mqtt_port, ws_port = ports['mqtt'], ports['websocket']
@@ -56,11 +58,27 @@ if args.broker:
 
                        allow_anonymous true"""
   mosquitto_conf_clean = inspect.cleandoc(mosquitto_conf) # remove indent
-  print(mosquitto_conf_clean)
-  with open('mosquitto.conf', 'w') as f:
-    f.write(mosquitto_conf_clean)
 
-  es.insert(0, lambda: exec('mosquitto', ['-c',  'mosquitto.conf']))
+  # generate a temp mosquitto config from mqtt.config values
+  # we do this b/c mosquitto is poorly written and cannot accept a config from
+  # stdin nor the file /dev/stdin (how'd they manage to mess that one up?)
+  f = tempfile.NamedTemporaryFile(mode='w', delete=False)
+  f.write(mosquitto_conf_clean)
+  f.close() # close before letting mosquitto incorrectly open the file
+
+
+  def run_local_mosquitto():
+    """ fork mosquitto, register atexit to rm tmp config, then wait (block)
+    on it. parent will exit when child exits, and rm tmp file. """
+    import atexit
+    from os import getpid, waitpid
+
+    pid = exec('mosquitto', ['-c', f.name])
+    atexit.register(lambda: import_module('pathlib').Path(f.name).unlink())
+    waitpid(pid, 0)
+
+
+  es.insert(0, lambda: execfn(run_local_mosquitto))
 
 if args.dummy:
   es.insert(1, lambda: execfn(import_module('mqtt.datagen').run))
