@@ -32,6 +32,8 @@ def stream(plug_num):
   ip = config.broker['ip']
   user = config.broker['user']
   pw = config.broker['pass']
+  port = config.broker['port']['websocket']
+  useSSL = config.broker['useSSL']
 
   con = connect()
 
@@ -46,7 +48,11 @@ def stream(plug_num):
   else:
     return render_template("mqtt_ws.html",
                            plug_name=name,
-                           ip=ip, username=user, password=pw)
+                           ip=ip,
+                           port=port,
+                           useSSL=useSSL,
+                           username=user,
+                           password=pw)
 
 
 @app.route('/toggle', methods = ['POST'])

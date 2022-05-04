@@ -38,7 +38,7 @@ if args.provision:
 es = [lambda: execfn(listener.run),
       lambda: execfn(handler.app.run,
         host='0.0.0.0', # listen on all addresses: accessible outside localhost
-        port=5000,
+        port=config.webserver['port'],
         debug=False # don't show python errors in browser on error
         )
      ]
@@ -56,6 +56,7 @@ if args.broker:
 
                        allow_anonymous true"""
   mosquitto_conf_clean = inspect.cleandoc(mosquitto_conf) # remove indent
+  print(mosquitto_conf_clean)
   with open('mosquitto.conf', 'w') as f:
     f.write(mosquitto_conf_clean)
 

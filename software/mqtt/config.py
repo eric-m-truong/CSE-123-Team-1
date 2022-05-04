@@ -13,8 +13,12 @@ default = {
         'port': {
           'mqtt': '1883',
           'websocket': '8883',
-        }
+        },
+        'useSSL': 'false',
      },
+    'webserver': {
+      'port': '5000'
+    }
 }
 
 

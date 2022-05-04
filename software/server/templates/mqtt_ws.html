@@ -44,16 +44,13 @@
   window.crypto.getRandomValues(rBuf);
   const r = new DataView(rBuf.buffer).getUint32();
 
-  // change 443 to 8883 if localhost
-  client = new Paho.MQTT.Client("{{ip}}", Number(443), "ws-stream-"+r);
+  client = new Paho.MQTT.Client("{{ip}}", Number({{port}}), "ws-stream-"+r);
   client.onMessageArrived = onMessageArrived;
   client.connect({
       onSuccess: onConnect,
-      // comment these out when using localhost
       userName:  "{{username}}",
       password:  "{{password}}",
-      useSSL:    true,
-      // --------------------------------------
+      useSSL:    {{useSSL}},
     });
 
   function onConnect() {
