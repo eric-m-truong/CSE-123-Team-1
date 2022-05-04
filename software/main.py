@@ -32,11 +32,11 @@ if args.provision:
 # processt the dispatcher waits for. if it is, it will eat one of our
 # KeyboardInterrupt signals.
 es = [lambda: execfn(listener.run),
-      lambda: execfn(handler.app.run,
-        host='0.0.0.0', # listen on all addresses: accessible outside localhost
-        port=80,
-        debug=False # don't show python errors in browser on error
-        )
+      #lambda: execfn(handler.app.run,
+      #  host='0.0.0.0', # listen on all addresses: accessible outside localhost
+      #  port=10080,
+      #  debug=False # don't show python errors in browser on error
+      #  )
      ]
 
 if args.dummy:

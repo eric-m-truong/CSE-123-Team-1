@@ -13,8 +13,13 @@ body {
   --topBoxSize: 0.150;
 }
 
+.centeredTable {
+  margin: 0 auto;
+}
+
 #container {
   height: calc(100vh * var(--topBoxSize));
+  background-color: #ADDF70;
   border: 1px solid black;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -33,6 +38,7 @@ body {
   flex: 1 0 75px;
   text-align: center;
   font-family: 'Exo 2';
+  color:#FFFFFF;
   font-size: calc(10vh * 0.48);
 }
 

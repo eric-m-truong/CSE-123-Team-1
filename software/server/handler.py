@@ -44,7 +44,7 @@ def stream(plug_num):
   if not status:
     return f'{name} is disabled!'
   else:
-    return render_template("mqtt_ws.html",
+    return render_template("powersolo.html",
                            plug_name=name,
                            ip=ip, username=user, password=pw)
 
@@ -67,22 +67,29 @@ def toggle():
   return '', 204 # return empty response
 
 
-@app.route("/")
-def root():
+@app.route("/map")
+def site_map():
   links = []
   for r in app.url_map.iter_rules():
     links.append((str(r), r.endpoint))
   return render_template("sitemap.html", links=links)
 
 
-@app.route("/lp")
-def list_plugs():
+@app.route("/")
+def root():
   con = connect()
   plugs = [(mac, alias if alias else mac, status)
       for mac, alias, status in execute(con, "SELECT * FROM Plugs").fetchall()]
   con.close()
   return render_template("powerlist.html", plugs=plugs)
 
+@app.route("/home")
+def home():
+  con = connect()
+  plugs = [(mac, alias if alias else mac, status)
+      for mac, alias, status in execute(con, "SELECT * FROM Plugs").fetchall()]
+  con.close()
+  return render_template("power.html", plugs=plugs)
 
 @app.route("/alias", methods = ['POST', 'GET'])
 def give_alias():

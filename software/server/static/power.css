@@ -23,25 +23,28 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: #ADDF70;
 }
 
 #content {
     flex: 1 0 75px;
     text-align: center;
     font-family: 'Exo 2';
+    color: #FFFFFF;
     font-size: calc(10vh * 0.48);
 }
 
 .LeftGraphBox {
-    position: absolute;
-    top: calc(100vh * 0.215);
-    left: calc(100vw * -0.364583);
+    position: relative;
+    top: calc(50vh * 0.215);
+    left: calc(50vw * 0.05);
     border: 1px solid black;
-    width: calc(100vw * 0.52);
+    width: calc(75vw * 0.52);
     height: calc(100vh * 0.465);
     border-radius: 65px;
 }
 
+/*
 .CenterGraphBox {
     position: absolute;
     top: calc(100vh * 0.215);
@@ -51,15 +54,45 @@ body {
     height: calc(100vh * 0.465);
     border-radius: 65px;
 }
+*/
 
 .RightGraphBox {
-    position: absolute;
+    position: relative;
     top: calc(100vh * 0.215);
     left: calc(100vw * 0.84375);
     border: 1px solid black;
     width: calc(100vw * 0.52);
     height: calc(100vh * 0.465);
     border-radius: 65px;
+}
+
+#graphBoxes {
+    margin: 0 auto;
+
+    margin-top: 5vh;
+    height: 100%;
+    width: 100%;
+}
+
+#leftBox,
+#rightBox {
+    display: inline-block;
+    *display: inline;
+    vertical-align: top;
+    margin: 0 auto;
+    font-size: 12px;
+    border: 1px solid black;
+    width: calc(80vw * 0.52);
+    height: calc(100vh * 0.465);
+    border-radius: 65px;
+}
+
+#leftBox {
+    float: left;
+}
+
+#rightBox {
+    float: right;
 }
 
 #PowerBox {
