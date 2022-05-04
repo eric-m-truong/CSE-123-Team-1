@@ -95,6 +95,24 @@ body {
     float: right;
 }
 
+#donut {
+    padding-top: calc(6vh * 0.169);
+
+    margin: 0 auto;
+    width: 85%;
+    height: 95%;
+    display: block;
+}
+
+#stacked {
+    padding-top: calc(6vh * 0.169);
+
+    margin: 0 auto;
+    width: 85%;
+    height: 95%;
+    display: block;
+}
+
 #PowerBox {
     position: absolute;
     top: calc(100vh * 0.750);
