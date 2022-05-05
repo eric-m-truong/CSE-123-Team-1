@@ -60,7 +60,7 @@ def run():
 
     logging.info(f"connected.")
 
-    channels = ["plux/data/+", "plux/ctrl/ack/+"]
+    channels = ["plux/data/+", "plux/control/ack/+"]
     client.subscribe(list(map(lambda x: (x, 0), channels)))
 
     client.on_message=on_message
