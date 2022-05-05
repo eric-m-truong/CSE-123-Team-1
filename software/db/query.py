@@ -19,12 +19,12 @@ SEL_PLUG_BY_MAC = "SELECT * FROM Plugs WHERE mac_addr=(?)"
 SEL_PLUG_SUM = "SELECT plug_id, SUM(power) FROM Data GROUP BY plug_id"
 SEL_DATA_RANGE = """
                  SELECT plug_id, power FROM Data
-                     WHERE timestamp >= date('now', ?)
+                     WHERE timestamp >= unixepoch('now', ?)
                      ORDER BY timestamp DESC
                  """
 SEL_UNIQ_TS = """
               SELECT DISTINCT timestamp FROM Data
-                  WHERE timestamp >= date('now', ?)
+                  WHERE timestamp >= unixepoch('now', ?)
                   ORDER BY timestamp ASC
               """
 UPD_ALIAS = """ UPDATE Plugs SET alias = (?) WHERE mac_addr = (?) """

@@ -38,7 +38,7 @@ def generate(plug_num):
     for i in range(NUM_PTS):
       # MAC = choice(MACS)
       pwr = NUM_PTS - i
-      ts = str(dates[i])
+      ts = dates[i].timestamp()
       dp = table_classes.Datapoint(ts, MAC, pwr)
       print(dp)
       util.add_data(con, dp)

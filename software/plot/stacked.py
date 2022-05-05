@@ -25,7 +25,7 @@ def generate():
   con = connect()
   cur = get_range(con, query_range)
 
-  tss = [ts[0] for ts in get_uniq_ts(con, query_range)]
+  tss = [int(ts[0]) for ts in get_uniq_ts(con, query_range)]
   data = defaultdict(list)
 
   for pid, pwr in cur:
@@ -37,7 +37,7 @@ def generate():
   names = list(data.keys())
 
   # Convert date strings to datetime.date objects (nothing will plot otherwise)
-  data['ts'] = np.array(list(tss), dtype=np.datetime64)
+  data['ts'] = np.array(tss, dtype='datetime64[s]')
 
   p = figure(title='24h Electricity Usage History',
       sizing_mode='scale_both',
