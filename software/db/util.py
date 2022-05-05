@@ -12,7 +12,7 @@ add_data_many = lambda con, ds: \
 get_plug_by_mac = lambda con, mac: \
   execute(con, query.SEL_PLUG_BY_MAC, mac).fetchone()
 get_sum = lambda con: execute(con, query.SEL_PLUG_SUM)
-get_24h = lambda con: execute(con, query.SEL_DATA_24H)
-get_uniq_ts = lambda con, range: execute(con, query.SEL_UNIQ_TS(range))
+get_range = lambda con, rng: execute(con, query.SEL_DATA_RANGE, rng)
+get_uniq_ts = lambda con, rng: execute(con, query.SEL_UNIQ_TS, rng)
 upd_alias = lambda con, alias, plug: execute(con, query.UPD_ALIAS, alias, plug)
 upd_status = lambda con, on, plug: execute(con, query.UPD_STATUS, on, plug)

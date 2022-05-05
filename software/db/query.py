@@ -17,15 +17,15 @@ INS_PLUG = "INSERT INTO Plugs VALUES (:mac_addr, :alias, :is_on)"
 INS_DATA = "INSERT INTO Data VALUES (:timestamp, :plug_id, :power)"
 SEL_PLUG_BY_MAC = "SELECT * FROM Plugs WHERE mac_addr=(?)"
 SEL_PLUG_SUM = "SELECT plug_id, SUM(power) FROM Data GROUP BY plug_id"
-SEL_DATA_24H = """
-               SELECT plug_id, power FROM Data
-                   WHERE timestamp >= date('now', '-1 day')
-                   ORDER BY timestamp DESC
-               """
-SEL_UNIQ_TS = lambda range: f"""
+SEL_DATA_RANGE = """
+                 SELECT plug_id, power FROM Data
+                     WHERE timestamp >= date('now', ?)
+                     ORDER BY timestamp DESC
+                 """
+SEL_UNIQ_TS = """
               SELECT DISTINCT timestamp FROM Data
-                 {range}
-                 ORDER BY timestamp ASC
+                  WHERE timestamp >= date('now', ?)
+                  ORDER BY timestamp ASC
               """
 UPD_ALIAS = """ UPDATE Plugs SET alias = (?) WHERE mac_addr = (?) """
 UPD_STATUS = """ UPDATE Plugs SET is_on = (?) WHERE mac_addr = (?) """

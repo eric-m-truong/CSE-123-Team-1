@@ -11,7 +11,7 @@ from bokeh.embed import file_html
 import sqlite3
 
 from db.connection import connect, execute
-from db.util import get_24h, get_uniq_ts
+from db.util import get_range, get_uniq_ts
 
 
 def generate():
@@ -20,12 +20,12 @@ def generate():
   WILL NOT HOLD in live data; e.g. adding a new plug while the server is
   running. """
 
+  query_range = "-1 day"
+
   con = connect()
-  cur = get_24h(con)
+  cur = get_range(con, query_range)
 
-  QUERY_RANGE = "WHERE timestamp >= date('now', '-1 day')"
-
-  tss = [ts[0] for ts in get_uniq_ts(con, QUERY_RANGE)]
+  tss = [ts[0] for ts in get_uniq_ts(con, query_range)]
   data = defaultdict(list)
 
   for pid, pwr in cur:
