@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 
 from bokeh.palettes import viridis
-from bokeh.plotting import figure, save
+from bokeh.plotting import figure, save, output_file
 from bokeh.transform import cumsum
 from bokeh.resources import CDN
 from bokeh.embed import file_html
@@ -22,6 +22,9 @@ def generate():
   x = {plug: tot_pwr for plug, tot_pwr in sum}
 
   con.close()
+
+  #File Code
+  output_file(filename="server/templates/donut.html", title="Donut HTML File")
 
   # Data
 
@@ -47,5 +50,13 @@ def generate():
   p.axis.axis_label=None
   p.axis.visible=False
   p.grid.grid_line_color = None
+  p.outline_line_color = None
+  p.toolbar.logo = None
+  p.toolbar_location = None
+  p.sizing_mode='stretch_both';
+  p.outline_line_alpha = 0;
+  p.border_fill_alpha = 0;
+
+  save(p)
 
   return file_html(p, CDN)
