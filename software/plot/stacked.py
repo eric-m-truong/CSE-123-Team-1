@@ -7,50 +7,49 @@ from bokeh.palettes import viridis
 from bokeh.plotting import figure, save, show, output_file
 from bokeh.resources import CDN
 from bokeh.embed import file_html
+from bokeh.models import DataRange1d
 
 import sqlite3
 
 from db.connection import connect, execute
-from db.util import get_24h, get_uniq_ts
+from db.util import get_24h_avg_by_hr
 
 
 def generate():
-  """ Relies on the assumption that we have the same amount of data for each
-  plug: for any given datetime, every plug should have data. This assumption
-  WILL NOT HOLD in live data; e.g. adding a new plug while the server is
-  running. """
+  """
+  plots the past 24 hour hourly average for each plug. averaging is done in the
+  db query itself.
+  """
 
   con = connect()
-  cur = get_24h(con)
 
-  QUERY_RANGE = "WHERE timestamp >= date('now', '-1 day')"
+  macs = [mac[0] for mac in execute(con, "SELECT mac_addr FROM Plugs")]
+  HRS_DAY = 24
+  data = {mac: np.zeros(HRS_DAY) for mac in macs}
 
-  tss = [ts[0] for ts in get_uniq_ts(con, QUERY_RANGE)]
-  data = defaultdict(list)
-
-  for pid, pwr in cur:
-    data[pid].append(pwr)
+  for hr, mac, avg in get_24h_avg_by_hr(con):
+    data[mac][hr] = avg
 
   con.close()
-
-  #File Code
-  output_file(filename="server/templates/stacked.html", title="Stacked HTML File")
 
   # Get list of keys now, before we add x data
   names = list(data.keys())
 
-  # Convert date strings to datetime.date objects (nothing will plot otherwise)
-  data['ts'] = np.array(list(tss), dtype=np.datetime64)
+  data['ts'] = np.array(range(1, HRS_DAY + 1))
 
   p = figure(title='24h Electricity Usage History',
-      sizing_mode='scale_both',
+      sizing_mode='stretch_both',
       min_border=0,
-      x_axis_label='hr',
-      x_axis_type='datetime',
-      y_axis_label='W')
+      x_axis_label='hour(s) ago',
+      y_axis_label='W',
+      # bounds prevents 'pan' from scrolling out of the bounds of the data
+      y_range=DataRange1d(bounds='auto'),
+      x_range=DataRange1d(bounds=(1, HRS_DAY)),
+      toolbar_location='below')
   p.grid.minor_grid_line_color = '#eeeeee'
   # Don't pad the ranges since these are thicc bloccs
   p.x_range.range_padding = p.y_range.range_padding = 0
+  p.xaxis.ticker.desired_num_ticks = 24 # label all 24 ticks
   # Flip on the time axis so now is rightmost and the past is leftmost
   p.x_range.flipped = True
 
@@ -63,6 +62,9 @@ def generate():
   p.legend.orientation = "horizontal"
   p.legend.background_fill_color = "#fafafa"
 
+
+
+
   #p.axis.axis_label=None
   #p.axis.visible=False
   p.grid.grid_line_color = None
@@ -73,6 +75,9 @@ def generate():
   p.outline_line_alpha = 0;
   p.border_fill_alpha = 0;
 
+  #File Code
+  output_file(filename="server/templates/stacked.html", title="Stacked HTML File")
+  
   save(p)
 
   return file_html(p, CDN)
