@@ -27,24 +27,22 @@ def generate():
   tss = [ts[0] for ts in get_uniq_ts(con, query_range)]
   macs = [mac[0] for mac in execute(con, "SELECT mac_addr FROM Plugs")]
 
-  data = defaultdict(list)
+  # if a plug has a value at a given ts, it will be 0
+  data = {mac: np.zeros(len(tss)) for mac in macs}
 
-  for ts in tss:
-    # if a plug has a value at that ts, use it, else set it to 0
-    # just so happens that "default" int() is 0
-    pwr_at_approx_ts = defaultdict(int)
+  for i, ts in enumerate(tss):
     for mac, pwr in get_by_approx_ts(con, ts):
-      pwr_at_approx_ts[mac] = pwr
-    for mac in macs:
-      data[mac].append(pwr_at_approx_ts[mac])
+      data[mac][i] = pwr
 
   con.close()
 
+  for _, pwrs in data.items():
+    pwrs[pwrs == 0] = np.average(pwrs)
+
+  print(data)
+
   # Get list of keys now, before we add x data
   names = list(data.keys())
-
-  assert all(map(lambda x: len(x) == len(tss), data.values())), \
-         "# uniq ts != # pts for all plugs"
 
   # Convert date strings to datetime.date objects (nothing will plot otherwise)
   data['ts'] = np.array(tss, dtype='datetime64[s]')
