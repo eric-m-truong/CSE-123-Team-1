@@ -7,51 +7,49 @@ from bokeh.palettes import viridis
 from bokeh.plotting import figure, save, show
 from bokeh.resources import CDN
 from bokeh.embed import file_html
+from bokeh.models import DataRange1d
 
 import sqlite3
 
 from db.connection import connect, execute
-from db.util import get_by_approx_ts, get_uniq_ts
+from db.util import get_24h_avg_by_hr
 
 
-def generate(query_range="-1 day"):
-  """ Relies on the assumption that we have the same amount of data for each
-  plug: for any given datetime, every plug should have data. This assumption
-  WILL NOT HOLD in live data; e.g. adding a new plug while the server is
-  running. """
+def generate():
+  """
+  plots the past 24 hour hourly average for each plug. averaging is done in the
+  db query itself.
+  """
 
   con = connect()
 
-  tss = [ts[0] for ts in get_uniq_ts(con, query_range)]
   macs = [mac[0] for mac in execute(con, "SELECT mac_addr FROM Plugs")]
+  HRS_DAY = 24
+  data = {mac: np.zeros(HRS_DAY) for mac in macs}
 
-  # if a plug has a value at a given ts, it will be 0
-  data = {mac: np.zeros(len(tss)) for mac in macs}
-
-  for i, ts in enumerate(tss):
-    for mac, pwr in get_by_approx_ts(con, ts):
-      data[mac][i] = pwr
+  for hr, mac, avg in get_24h_avg_by_hr(con):
+    data[mac][hr] = avg
 
   con.close()
-
-  for _, pwrs in data.items():
-    pwrs[pwrs == 0] = np.average(pwrs)
 
   # Get list of keys now, before we add x data
   names = list(data.keys())
 
-  # Convert date strings to datetime.date objects (nothing will plot otherwise)
-  data['ts'] = np.array(tss, dtype='datetime64[s]')
+  data['ts'] = np.array(range(1, HRS_DAY + 1))
 
   p = figure(title='24h Electricity Usage History',
-      sizing_mode='scale_both',
+      sizing_mode='stretch_both',
       min_border=0,
-      x_axis_label='hr',
-      x_axis_type='datetime',
-      y_axis_label='W')
+      x_axis_label='hour(s) ago',
+      y_axis_label='W',
+      # bounds prevents 'pan' from scrolling out of the bounds of the data
+      y_range=DataRange1d(bounds='auto'),
+      x_range=DataRange1d(bounds=(1, HRS_DAY)),
+      toolbar_location='below')
   p.grid.minor_grid_line_color = '#eeeeee'
   # Don't pad the ranges since these are thicc bloccs
   p.x_range.range_padding = p.y_range.range_padding = 0
+  p.xaxis.ticker.desired_num_ticks = 24 # label all 24 ticks
   # Flip on the time axis so now is rightmost and the past is leftmost
   p.x_range.flipped = True
 
