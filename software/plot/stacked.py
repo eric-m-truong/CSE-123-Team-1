@@ -11,7 +11,7 @@ from bokeh.embed import file_html
 import sqlite3
 
 from db.connection import connect, execute
-from db.util import get_range, get_uniq_ts
+from db.util import get_by_approx_ts, get_uniq_ts
 
 
 def generate():
@@ -23,18 +23,28 @@ def generate():
   query_range = "-1 day"
 
   con = connect()
-  cur = get_range(con, query_range)
 
-  tss = [int(ts[0]) for ts in get_uniq_ts(con, query_range)]
+  tss = [ts[0] for ts in get_uniq_ts(con, query_range)]
+  macs = [mac[0] for mac in execute(con, "SELECT mac_addr FROM Plugs")]
+
   data = defaultdict(list)
 
-  for pid, pwr in cur:
-    data[pid].append(pwr)
+  for ts in tss:
+    # if a plug has a value at that ts, use it, else set it to 0
+    # just so happens that "default" int() is 0
+    pwr_at_approx_ts = defaultdict(int)
+    for mac, pwr in get_by_approx_ts(con, ts):
+      pwr_at_approx_ts[mac] = pwr
+    for mac in macs:
+      data[mac].append(pwr_at_approx_ts[mac])
 
   con.close()
 
   # Get list of keys now, before we add x data
   names = list(data.keys())
+
+  assert all(map(lambda x: len(x) == len(tss), data.values())), \
+         "# uniq ts != # pts for all plugs"
 
   # Convert date strings to datetime.date objects (nothing will plot otherwise)
   data['ts'] = np.array(tss, dtype='datetime64[s]')

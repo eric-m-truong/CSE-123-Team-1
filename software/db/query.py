@@ -23,9 +23,12 @@ SEL_DATA_RANGE = """
                      ORDER BY timestamp DESC
                  """
 SEL_UNIQ_TS = """
-              SELECT DISTINCT timestamp FROM Data
+              SELECT DISTINCT CAST(timestamp as INTEGER) FROM Data
                   WHERE timestamp >= unixepoch('now', ?)
                   ORDER BY timestamp ASC
               """
+SEL_DATA_BY_APPROX_TS = """ SELECT plug_id, power FROM Data
+                                WHERE CAST(timestamp AS INTEGER) = ?
+                        """
 UPD_ALIAS = """ UPDATE Plugs SET alias = (?) WHERE mac_addr = (?) """
 UPD_STATUS = """ UPDATE Plugs SET is_on = (?) WHERE mac_addr = (?) """
