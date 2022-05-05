@@ -14,6 +14,7 @@ default = {
           'mqtt': '1883',
           'websocket': '80',
         }
+        'useSSL': 'true',
      },
 }
 
