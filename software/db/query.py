@@ -32,3 +32,13 @@ SEL_DATA_BY_APPROX_TS = """ SELECT plug_id, power FROM Data
                         """
 UPD_ALIAS = """ UPDATE Plugs SET alias = (?) WHERE mac_addr = (?) """
 UPD_STATUS = """ UPDATE Plugs SET is_on = (?) WHERE mac_addr = (?) """
+SEL_PLUG_DAY_AVG_BY_HR = """
+                         SELECT
+                             CAST(strftime('%H', timestamp, 'unixepoch') AS INT)
+                                 AS hour,
+                             plug_id,
+                             AVG(power)
+                         FROM Data
+                           WHERE timestamp >= unixepoch('now', '-1 day')
+                           GROUP BY plug_id, hour;
+                         """
