@@ -190,12 +190,17 @@ static void msg_receive(char *topic, byte* payload, unsigned int length) {
   int msg = *payload;
   Serial.print("msg_receive(): payload - ");
   Serial.println(msg);
+
+  // react to message
+  String mqttCtrlTopicAck = "plux/control/ack/" + WiFi.macAddress();
   switch (msg) {
     case 49: // turning ON circuit (ASCII 1 == int 49)
       digitalWrite(RELAY, HIGH);
+      client.publish(mqttCtrlTopicAck.c_str(), (const unsigned char *) "1", 2, true); // needed for server
       return;
     case 50: // turning OFF circuit (ASCII 2 == 50)
       digitalWrite(RELAY, LOW);
+      client.publish(mqttCtrlTopicAck.c_str(), (const unsigned char *) "2", 2, true); // needed for server
       return;
   }
 }
