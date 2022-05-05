@@ -22,6 +22,10 @@ parser.add_argument('--localserver', '-ls',
                     action='store_true',
                     default=False,
                     help='Changes the handler\'s to local server mode by re-enabling the handler.')
+parser.add_argument('--broker', '-b',
+                    action=argparse.BooleanOptionalAction,
+                    default=False,
+                    help='Run a local broker.')
 args = parser.parse_args()
 
 format = '%(levelname)s:%(module)s:%(message)s'
