@@ -14,13 +14,11 @@ from db.connection import connect, execute
 from db.util import get_by_approx_ts, get_uniq_ts
 
 
-def generate():
+def generate(query_range="-1 day"):
   """ Relies on the assumption that we have the same amount of data for each
   plug: for any given datetime, every plug should have data. This assumption
   WILL NOT HOLD in live data; e.g. adding a new plug while the server is
   running. """
-
-  query_range = "-1 day"
 
   con = connect()
 
@@ -38,8 +36,6 @@ def generate():
 
   for _, pwrs in data.items():
     pwrs[pwrs == 0] = np.average(pwrs)
-
-  print(data)
 
   # Get list of keys now, before we add x data
   names = list(data.keys())
