@@ -42,6 +42,29 @@ body {
   font-size: calc(10vh * 0.48);
 }
 
+#textbox {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+
+.alignleft {
+  width: 33.33333%;
+  text-align: left;
+  font-size: calc(7.5vh * 0.48);
+}
+
+.aligncenter {
+  width: 33.33333%;
+  text-align: center;
+}
+
+.alignright {
+  width: 33.33333%;
+  text-align: right;
+  font-size: calc(7.5vh * 0.48);
+}
+
 .databox {
   position: relative;
   /*top: calc(100vh * 0.215);

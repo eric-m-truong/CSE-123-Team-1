@@ -30,11 +30,15 @@
 <body>
     <div id="container">
         <div id="content">
-            <p>Krysha's {{plug_name}} Center</p>
+            <div id="textbox">
+                <p class="alignleft"><a href="/">Home Page</a></p>
+                <p class="aligncenter">Krysha's {{plug_name}} Center</p>
+                <p class="alignright"><a href="/list">List Plugs</a></p>
+              </div>
         </div>
     </div>
     <div class="MainGraphBox">
-        <div class="bokehPlot" id="bokehPlot"></div>
+        <div class="bokehPlot" id="BokehPlot"></div>
     </div>
 </body>
 <script type="text/javascript" src="{{url_for('static', filename='powersolo.js')}}"></script>

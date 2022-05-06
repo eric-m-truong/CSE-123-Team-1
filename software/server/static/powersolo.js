@@ -34,7 +34,7 @@ client.connect({
 
 function onConnect() {
     client.subscribe("plux/data/"+plug_name);
-    console.log("Yeah!")
+    console.log("Yeah! " + plug_name)
 }
 
 function onMessageArrived(m) {
@@ -55,5 +55,5 @@ plot.outline_line_alpha = 0;
 plot.border_fill_alpha = 0;
 var doc = new Bokeh.Document()
 doc.add_root(plot)
-var div = document.getElementById("bokehPlot")
+var div = document.getElementById("BokehPlot")
 Bokeh.embed.add_document_standalone(doc, div);

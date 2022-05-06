@@ -1,15 +1,18 @@
 // Make the DIV element draggable:
-dragElement(document.getElementById("PowerBox"));
+
 //objectWidth = document.getElementById("PowerBox").offsetWidth;
 //console.log("objectWidth: " + objectWidth);
-function dragElement(elmnt) {
+function dragElement(mac) {
+  //console.log("Binga!")
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-  if (document.getElementById(elmnt.id + "header")) {
+  if (document.getElementById(mac + "header")) {
     // if present, the header is where you move the DIV from:
-    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+    document.getElementById(mac + "header").onmousedown = dragMouseDown;
+    //console.log("Hi!")
   } else {
-    // otherwise, move the DIV from anywhere inside the DIV:
-    elmnt.onmousedown = dragMouseDown;
+    //otherwise, move the DIV from anywhere inside the DIV:
+    mac.onmousedown = dragMouseDown;
+    //console.log("Oh!")
   }
 
   function dragMouseDown(e) {
@@ -33,12 +36,12 @@ function dragElement(elmnt) {
     //pos4 = e.clientY;
     // set the element's new position:
     //elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    if ((elmnt.offsetLeft - pos1) < (getWidth() - elmnt.offsetWidth) && (elmnt.offsetLeft - pos1 > 0)) {
-        console.log((elmnt.offsetLeft - pos1) + " vs " + elmnt.style.left.slice(0,-2) + " vs " + (getWidth() - elmnt.offsetWidth));
-        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-        
+    if ((mac.offsetLeft - pos1) < (getWidth() - mac.offsetWidth) && (mac.offsetLeft - pos1 > 0)) {
+      //console.log((mac.offsetLeft - pos1) + " vs " + mac.style.left.slice(0, -2) + " vs " + (getWidth() - mac.offsetWidth));
+      mac.style.left = (mac.offsetLeft - pos1) + "px";
+
     }
-    
+
   }
 
   function closeDragElement() {
@@ -50,27 +53,40 @@ function dragElement(elmnt) {
 
 
 function getWidth() {
-    if (self.innerWidth) {
-       return self.innerWidth;
-    }
-    else if (document.documentElement && document.documentElement.clientHeight){
-        return document.documentElement.clientWidth;
-    }
-    else if (document.body) {
-        return document.body.clientWidth;
-    }
-    return 0;
-}
-  
-  function getHeight() {
-    return Math.max(
-      document.body.scrollHeight,
-      document.documentElement.scrollHeight,
-      document.body.offsetHeight,
-      document.documentElement.offsetHeight,
-      document.documentElement.clientHeight
-    );
+  if (self.innerWidth) {
+    return self.innerWidth;
   }
-  
-  console.log('Width:  ' +  getWidth() );
-  console.log('Height: ' + getHeight() );
+  else if (document.documentElement && document.documentElement.clientHeight) {
+    return document.documentElement.clientWidth;
+  }
+  else if (document.body) {
+    return document.body.clientWidth;
+  }
+  return 0;
+}
+
+function getHeight() {
+  return Math.max(
+    document.body.scrollHeight,
+    document.documentElement.scrollHeight,
+    document.body.offsetHeight,
+    document.documentElement.offsetHeight,
+    document.documentElement.clientHeight
+  );
+}
+
+
+
+
+
+//dragElement(document.getElementsByClassName("PowerBox")[0]);
+const dragSignal = document.querySelectorAll('label[name="dragBox"]')
+//console.log(dragSignal[0].getAttribute('id'))
+var dragButton = document.getElementsByName("dragBox");
+for (var X = 0, Y = dragSignal.length; X < Y; X++) {
+  //dragSignal[X].addEventListener('drag', dragElement(dragSignal[X].getAttribute('id')));
+  document.getElementsByClassName("PowerBox")[X].style.left = ((document.getElementsByClassName("PowerBox")[0].offsetWidth + 5) * X) + "px";
+  dragElement(document.getElementsByClassName("PowerBox")[X]);
+}
+  //console.log('Width:  ' +  getWidth() );
+  //console.log('Height: ' + getHeight() );
