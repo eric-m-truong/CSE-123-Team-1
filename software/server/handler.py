@@ -21,13 +21,6 @@ def serve_static(path):
 def serve_donut_tot():
   return donut_tot.generate()
 
-@app.route('/donut.html')
-def gimme_a_donut():
-  return render_template('donut.html')
-
-@app.route('/stacked.html')
-def gimme_a_stack():
-  return render_template('stacked.html')
 
 @app.route('/stacked')
 def serve_stacked():
@@ -53,7 +46,7 @@ def stream(plug_num):
   if not status:
     return f'{name} is disabled!'
   else:
-    return render_template("powersolo.html",
+    return render_template("mqtt_ws.html",
                            plug_name=name,
                            ip=ip,
                            port=port,
@@ -80,30 +73,21 @@ def toggle():
   return '', 204 # return empty response
 
 
-@app.route("/map")
-def site_map():
+@app.route("/")
+def root():
   links = []
   for r in app.url_map.iter_rules():
     links.append((str(r), r.endpoint))
   return render_template("sitemap.html", links=links)
 
 
-@app.route("/")
-def root():
+@app.route("/lp")
+def list_plugs():
   con = connect()
   plugs = [(mac, alias if alias else mac, status)
       for mac, alias, status in execute(con, "SELECT * FROM Plugs").fetchall()]
   con.close()
-  return render_template("powerlist.html", plugs=plugs)
-
-
-@app.route("/home")
-def home():
-  con = connect()
-  plugs = [(mac, alias if alias else mac, status)
-      for mac, alias, status in execute(con, "SELECT * FROM Plugs").fetchall()]
-  con.close()
-  return render_template("power.html", plugs=plugs, donut=donut_tot.generate(), stacked=stacked.generate())
+  return render_template("lp.html", plugs=plugs)
 
 
 @app.route("/alias", methods = ['POST', 'GET'])
@@ -128,4 +112,4 @@ def give_alias():
 
 
 if __name__ == '__main__':
-  app.run(host=projectplux.info, debug = True)
+  app.run(debug = True)

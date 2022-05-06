@@ -7,14 +7,14 @@ CONFIG_PATH = 'config.json'
 
 default = {
     'broker': {
-        'ip':   'mosquitto.projectplux.info',
-        'user': 'eric',
-        'pass': 'truong',
+        'ip':   'localhost',
+        'user': '',
+        'pass': '',
         'port': {
           'mqtt': '1883',
-          'websocket': '80',
-        }
-        'useSSL': 'true',
+          'websocket': '8883',
+        },
+        'useSSL': 'false',
      },
     'webserver': {
       'port': '5000'
