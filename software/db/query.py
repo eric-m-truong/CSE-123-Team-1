@@ -19,12 +19,12 @@ SEL_PLUG_BY_MAC = "SELECT * FROM Plugs WHERE mac_addr=(?)"
 SEL_PLUG_SUM = "SELECT plug_id, SUM(power) FROM Data GROUP BY plug_id"
 SEL_DATA_RANGE = """
                  SELECT plug_id, power FROM Data
-                     WHERE timestamp >= unixepoch('now', ?)
+                     WHERE timestamp >= strftime('%s', 'now', ?)
                      ORDER BY timestamp DESC
                  """
 SEL_UNIQ_TS = """
               SELECT DISTINCT CAST(timestamp as INTEGER) FROM Data
-                  WHERE timestamp >= unixepoch('now', ?)
+                  WHERE timestamp >= strftime('%s', 'now', ?)
                   ORDER BY timestamp ASC
               """
 SEL_DATA_BY_APPROX_TS = """ SELECT plug_id, power FROM Data
@@ -39,6 +39,6 @@ SEL_PLUG_DAY_AVG_BY_HR = """
                              plug_id,
                              AVG(power)
                          FROM Data
-                           WHERE timestamp >= unixepoch('now', '-1 day')
+                           WHERE timestamp >= strftime('%s', 'now', '-1 day')
                            GROUP BY plug_id, hour;
                          """
