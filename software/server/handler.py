@@ -39,9 +39,13 @@ def stream(plug_num):
 
   name_and_status = [(alias if alias else mac, status)
       for mac, alias, status in execute(con, "SELECT * FROM Plugs")]
-  name, status = name_and_status[int(plug_num)]
 
   con.close()
+
+  try:
+    name, status = name_and_status[int(plug_num)]
+  except (IndexError, ValueError):
+    return 'no such plug'
 
   if not status:
     return f'{name} is disabled!'
@@ -87,6 +91,10 @@ def list_plugs():
   plugs = [(mac, alias if alias else mac, status)
       for mac, alias, status in execute(con, "SELECT * FROM Plugs").fetchall()]
   con.close()
+
+  if len(plugs) == 0:
+    return 'no plugs found in db'
+
   return render_template("lp.html", plugs=plugs)
 
 
@@ -108,6 +116,10 @@ def give_alias():
     plugs = [row[0] for row in # annoying: tuple of length 1
         execute(con, "SELECT mac_addr FROM Plugs").fetchall()]
     con.close()
+
+    if len(plugs) == 0:
+      return 'no plugs found in db'
+
     return render_template("alias.html", plugs=plugs)
 
 

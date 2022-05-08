@@ -23,6 +23,9 @@ def generate():
 
   con.close()
 
+  if len(x) == 0:
+    return 'no plugs found in db'
+
   # Data
 
   data = pd.Series(x).reset_index(name='value').rename(columns={'index': 'dev'})
