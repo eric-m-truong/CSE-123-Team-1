@@ -1,4 +1,4 @@
- #include <ACS712.h>
+#include <ACS712.h>
 #include <ZMPT101B.h>
 #include <WiFiManager.h>
 #include <WiFiClientSecure.h>
@@ -65,9 +65,9 @@ void setup() {
   pinMode(RELAY, OUTPUT);                                     // set RELAY pin to output mode
   Serial.println(__FILE__);
 
-  if (digitalRead(12) == HIGH) {
-    wm.resetSettings(); // debug: reset if pin 12 is high
-  }
+//  if (digitalRead(12) == HIGH) {
+//    wm.resetSettings(); // debug: reset if pin 12 is high
+//  }
   bool res = wm.autoConnect("PLUX", "12345678");                // use WiFi manager to dynamically add SSID/password
   if (!res) {
     Serial.println("setup(): connection failed");
@@ -98,7 +98,7 @@ void setup() {
                                                               // -28800: UTC-8
                                                               // 3600: DST offset
                                                               
-  ZMPT.calibrate();                                           // calibrate voltage sensor
+//  ZMPT.calibrate();                                           // calibrate voltage sensor (not working atm)
   ACS.calibrate();                                            // calibrate current sensor
 }
 
@@ -115,20 +115,22 @@ void loop() {
     
     previousMillis = currentMillis; // update previous timer value
 
-    float volts = ZMPT.getVoltageAC(WALL_FREQ) / sqrt(2);         // measure AC RMS voltage
-    float amps = ACS.getCurrentAC(WALL_FREQ) / sqrt(2);           // measure AC RMS current
-    float watts = (volts * amps);                                 // calculate power
+//    float volts = ZMPT.getVoltageAC(WALL_FREQ);                   // measure AC instantaneous voltage (not working atm)
+    float amps = ACS.getCurrentAC(WALL_FREQ);                       // measure AC instantaneous current
+    float watts = (WALL_VOLT * amps);                               // calculate instantaneous power
   
-    printLocalTime();                                             // get timestamp and place in local buffer
-    sprintf(mqtt_msg, "%s, %f", displayTime, watts / 2.5);        // convert number to string in string buffer (must divide by 2.5 because of error margins)
-    memset(displayTime, '\0', MAX_TIME_LEN);                      // reset time buffer
+    printLocalTime();                                               // get timestamp and place in local buffer
+    sprintf(mqtt_msg, "%s, %f", displayTime, watts);                // convert number to string in string buffer
+    memset(displayTime, '\0', MAX_TIME_LEN);                        // reset time buffer
     
     int ret = client.publish(mqttDataTopicStr.c_str(), mqtt_msg, false);  // send power data as string to MQTT data topic
     if (!ret) {
       Serial.println("loop(): unable to publish MQTT message");          
     } /*else {
       Serial.print("Data: ");
-      Serial.print(mA);
+      Serial.print(volts);
+      Serial.print(" ");
+      Serial.print(amps);
       Serial.println(" | loop(): MQTT message published");
     }*/
     
