@@ -3,8 +3,10 @@ from random import random, randrange
 from time import sleep, time
 from sys import exit
 import logging
-from mqtt import config
+from importlib import import_module
+
 import db.connection as dbcon
+from mqtt import config
 
 
 def run():
@@ -30,7 +32,10 @@ def run():
   try:
     names, status = map(list, zip(*names_and_status)) # inverse zip
   except ValueError:
-    logging.warning("no plugs in database. aborting.")
+    logging.warning("no plugs in database. populating...")
+    PLUG_NUM = 4
+    import_module('db.datagen').generate(PLUG_NUM)
+    logging.warning("db populated. exiting...")
     exit(1)
 
   con.close()
