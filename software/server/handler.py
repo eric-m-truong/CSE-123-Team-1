@@ -64,7 +64,7 @@ def toggle():
     client = mqtt.Client()
     client.username_pw_set(config.broker['user'], config.broker['pass'])
     client.connect(config.broker['ip'])
-    topic = f'plux/ctrl/{mac}'
+    topic = f'plux/control/{mac}'
     logging.debug(f'sending {status} to {topic}')
     client.publish(topic, int(status))
   except ConnectionRefusedError:

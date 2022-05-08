@@ -10,7 +10,7 @@ import db.connection as dbcon
 def run():
   """
   Randomly generates data and publishes to a random plug channel
-  Send a plug number to channel "ctrl" to toggle the plug ON/OFF
+  Send a plug number to channel "control" to toggle the plug ON/OFF
   """
   try:
     client = mqtt.Client() # may need to randomize name
@@ -43,12 +43,12 @@ def run():
     status[plug_num] = set_status
 
     sleep(random()) # intro random delay to simulate processing time
-    client.publish(f"plux/ctrl/ack/{mac_addr}", set_status)
+    client.publish(f"plux/control/ack/{mac_addr}", set_status)
 
     logging.debug(f'set {mac_addr} to {status[plug_num]}')
 
 
-  client.subscribe("plux/ctrl/+")
+  client.subscribe("plux/control/+")
   client.on_message=on_message
   client.loop_start()
 
