@@ -11,15 +11,18 @@ from bokeh.embed import file_html
 
 import sqlite3
 
-from db.connection import connect
+from db.connection import connect, execute
 from db.util import get_sum
 
 
 def generate():
   con = connect()
   sum = get_sum(con)
-
-  x = {plug: tot_pwr for plug, tot_pwr in sum}
+  name_alias = {mac: alias if alias else mac
+      # it occurs to me that this query will break if we change the order of the
+      # rows in the table or s.t. similar
+      for mac, alias, _ in execute(con, "SELECT * FROM Plugs").fetchall()}
+  x = {name_alias[plug]: tot_pwr for plug, tot_pwr in sum}
 
   con.close()
 
