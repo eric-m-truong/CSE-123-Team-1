@@ -36,10 +36,10 @@ def run():
 
   def parse_ack_message(mac_addr, message):
     """ change db value on ACK. assumes a binary message of 0/1. """
-    assert util.get_plug_by_mac(con, mac_addr)
-    set_status = int(message.payload)
-    util.upd_status(con, set_status, mac_addr)
-    logging.info(f'updated {mac_addr} to {set_status}')
+    if util.get_plug_by_mac(con, mac_addr):
+      set_status = int(message.payload)
+      util.upd_status(con, set_status, mac_addr)
+      logging.info(f'updated {mac_addr} to {set_status}')
 
 
   def on_message(client, userdata, message):
