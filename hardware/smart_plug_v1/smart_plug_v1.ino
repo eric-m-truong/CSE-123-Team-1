@@ -1,4 +1,4 @@
-#include <ACS712.h>
+0#include <ACS712.h>
 #include <ZMPT101B.h>
 #include <WiFiManager.h>
 #include <WiFiClientSecure.h>
@@ -202,7 +202,7 @@ static void msg_receive(char *topic, byte* payload, unsigned int length) {
       return;
     case 50: // turning OFF circuit (ASCII 2 == 50)
       digitalWrite(RELAY, LOW);
-      client.publish(mqttCtrlTopicAck.c_str(), (const unsigned char *) "2", 2, true); // needed for server
+      client.publish(mqttCtrlTopicAck.c_str(), (const unsigned char *) "0", 2, true); // needed for server
       return;
   }
 }
