@@ -27,7 +27,7 @@ def run():
 
   # use a generator to only fetch each value as accessed. better than
   # constructing a whole list to make two lists from its elements.
-  names_and_status = ((alias if alias else mac, status)
+  names_and_status = ((mac, status)
       for mac, alias, status in dbcon.execute(con, "SELECT * FROM Plugs"))
   try:
     names, status = map(list, zip(*names_and_status)) # inverse zip
