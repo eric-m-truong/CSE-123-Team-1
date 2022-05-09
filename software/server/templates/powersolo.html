@@ -33,7 +33,7 @@
             <div id="textbox">
                 <p class="alignleft"><a href="/">Home Page</a></p>
                 <div class="aligncenter">Krysha's
-                <form style="display: inline-block;" method="post">
+                  <form style="display: inline-block;" action="{{url_for('give_alias')}}" method="post">
                     <input name="mac" id ='hiddenMac' type="hidden" value="{{ mac }}"></input>
                     <input type="text" id='dynamicBox' name="alias" value="{{plug_name}}">
                     <input type="submit" style="display: none;" value="change alias">
