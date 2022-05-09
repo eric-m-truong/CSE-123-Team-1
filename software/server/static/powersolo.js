@@ -5,11 +5,14 @@ const source = new Bokeh.ColumnDataSource({
 
 // make a plot with some tools
 const plot = Bokeh.Plotting.figure({
-    sizing_mode: 'stretch_width',
     x_axis_type: 'datetime',
+    sizing_mode: 'stretch_both',
+    x_axis_label: 't',
+    y_axis_label: 'W',
+    tools: 'save',
 });
 
-plot.x_range.flipped = true;
+// plot.x_range.flipped = true;
 
 // add a line with data from the source
 plot.line({ field: "x" }, { field: "y" }, {
@@ -75,8 +78,6 @@ textboxEle.addEventListener('input', function (e) {
 plot.outline_line_color = null;
 plot.toolbar.logo = null;
 plot.toolbar_location = null;
-plot.sizing_mode = 'stretch_both';
-//plot.background_fill_alpha = 0;
 plot.outline_line_alpha = 0;
 plot.border_fill_alpha = 0;
 var doc = new Bokeh.Document()
