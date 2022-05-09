@@ -117,12 +117,12 @@ def give_alias():
   # time the user took to select a plug and type its alias. instead, we opt to
   # pass the mac of the plug, alias or not
   if request.method == 'POST':
-    plug = request.form.get('plug')
+    mac = request.form.get('mac')
     alias = request.form.get('alias')
     con = connect()
-    upd_alias(con, alias, plug)
+    upd_alias(con, alias, mac)
     con.close()
-    logging.debug(f'gave {plug} alias {alias}')
+    logging.debug(f'gave {mac} alias {alias}')
     return '', 204 # return empty response
   else:
     con = connect()
