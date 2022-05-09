@@ -3,6 +3,8 @@
 //var debugButton = buttonArray[0];
 
 //debugButton.onclick = function() {debugEvent()};
+var OFF = 0;
+var ON = 1;
 var dict = new Object();
 var listOfIds = [];
 console.log("Don't mind me. 80\n");
@@ -14,7 +16,7 @@ function getAllPlugs() {
   for (var i = 0, j = elements.length; i < j; i++) {
     //console.log(elements[i].getAttribute('id'));
     listOfIds.push(elements[i].getAttribute('id'));
-    dict[elements[i].getAttribute('id')] = 2;
+    dict[elements[i].getAttribute('id')] = OFF;
   }
   //console.log(dict)
 }
@@ -45,15 +47,15 @@ function onConnectionLost(responseObject) {
 function onMessageArrived(message) {
   //console.log("onMessageArrived:"+message.payloadString);
   //console.log(message.payloadString + " + " + message.destinationName.slice(17));
-  if (parseInt(message.payloadString[0]) == 1 || parseInt(message.payloadString[0]) == 2) {
+  if (parseInt(message.payloadString[0]) == ON || parseInt(message.payloadString[0]) == OFF) {
     if (dict[message.destinationName.slice(17)] != parseInt(message.payloadString[0])) {
       //console.log(dict[message.destinationName.slice(17)] + " plus " + message.destinationName.slice(17))
-      if (parseInt(message.payloadString[0]) == 1) {
+      if (parseInt(message.payloadString[0]) == ON) {
         //console.log(document.getElementById(message.destinationName.slice(17)).checked)
         document.getElementById(message.destinationName.slice(17)).checked = true;
         //console.log("on!")
       }
-      if (parseInt(message.payloadString[0]) == 2) {
+      if (parseInt(message.payloadString[0]) == OFF) {
         //console.log(document.getElementById(message.destinationName.slice(17)).checked)
         document.getElementById(message.destinationName.slice(17)).checked = false;
         //console.log("off!")
@@ -83,8 +85,8 @@ function sendSignal() {
 
 
       if (key === (buttonStatus[i].getAttribute('id'))) {
-        if (dict[key] == 2 && buttonStatus[i].checked == true) {
-          dict[key] = 1;
+        if (dict[key] == OFF && buttonStatus[i].checked == true) {
+          dict[key] = ON;
           message = new Paho.MQTT.Message("1");
           message.retained = true;
           message.destinationName = "plux/control/" + key;
@@ -92,9 +94,9 @@ function sendSignal() {
           //console.log("Let's go!1")
           return;
         }
-        else if (dict[key] == 1 && buttonStatus[i].checked == false) {
-          dict[key] = 2;
-          message = new Paho.MQTT.Message("2");
+        else if (dict[key] == ON && buttonStatus[i].checked == false) {
+          dict[key] = OFF;
+          message = new Paho.MQTT.Message("0");
           message.retained = true;
           message.destinationName = "plux/control/" + key;
           client.send(message);
@@ -139,8 +141,11 @@ function sendSignal() {
   //console.log(2);
 }
 
+var rBuf = new Int8Array(4);
+window.crypto.getRandomValues(rBuf);
+const r = new DataView(rBuf.buffer).getUint32();
 
-client = new Paho.MQTT.Client("mosquitto.projectplux.info", Number(80), "clientId1234");
+client = new Paho.MQTT.Client("mosquitto.projectplux.info", Number(80), "");
 // set callback handlers
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
