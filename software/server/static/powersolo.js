@@ -191,18 +191,16 @@ window.crypto.getRandomValues(rBuf);
 const r = new DataView(rBuf.buffer).getUint32();
 var mac_addr = document.getElementById('hiddenMac').getAttribute('value');
 
-client = new Paho.MQTT.Client(ip, Number(80), "ws-stream-" + r);
+client = new Paho.MQTT.Client(ip, Number(port), "ws-stream-" + r);
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
 
 
 client.connect({
     onSuccess: onConnect,
-    // comment these out when using localhost
     userName: username,
     password: password,
-    useSSL: true,
-    // --------------------------------------
+    useSSL: useSSL,
 });
 
 // called when the client connects
