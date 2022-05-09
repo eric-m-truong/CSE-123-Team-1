@@ -67,6 +67,7 @@ def generate():
 
   #p.axis.axis_label=None
   #p.axis.visible=False
+  p.legend.orientation='vertical';
   p.grid.grid_line_color = None
   p.outline_line_color = None
   p.toolbar.logo = None
@@ -75,6 +76,7 @@ def generate():
   p.outline_line_alpha = 0;
   p.border_fill_alpha = 0;
 
+  #print("HIS NAME IS ODDPARENT\n\n\n\n\n")
   #File Code
   output_file(filename="server/templates/stacked.html", title="Stacked HTML File")
   

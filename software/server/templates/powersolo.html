@@ -23,7 +23,7 @@
         var username = '{{ username }}'
         var password = '{{ password }}'
     </script>
-    
+
 </head>
 
 
@@ -32,14 +32,26 @@
         <div id="content">
             <div id="textbox">
                 <p class="alignleft"><a href="/">Home Page</a></p>
-                <p class="aligncenter">Krysha's {{plug_name}} Center</p>
+                <div class="aligncenter">Krysha's
+                <form style="display: inline-block;" method="post">
+                    <input name="mac" id ='hiddenMac' type="hidden" value="{{ mac }}"></input>
+                    <input type="text" id='dynamicBox' name="alias" value="{{plug_name}}">
+                    <input type="submit" style="display: none;" value="change alias">
+                </form>
+                Center
+            </div>
                 <p class="alignright"><a href="/list">List Plugs</a></p>
-              </div>
+            </div>
         </div>
     </div>
     <div class="MainGraphBox">
         <div class="bokehPlot" id="BokehPlot"></div>
     </div>
+    <label class="switch">
+        <input type="checkbox" name="statusSignal" id="{{ mac }}">
+        <span class="slider round"></span>
+    </label>
 </body>
 <script type="text/javascript" src="{{url_for('static', filename='powersolo.js')}}"></script>
+
 </html>

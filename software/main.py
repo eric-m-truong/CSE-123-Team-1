@@ -49,13 +49,7 @@ if args.localserver:
         )
      ]
 else:
-  es = [lambda: execfn(listener.run),
-      #lambda: execfn(handler.app.run,
-      #  host='0.0.0.0', # listen on all addresses: accessible outside localhost
-      #  port=10080,
-      #  debug=False # don't show python errors in browser on error
-      #  )
-     ]
+  es = [lambda: execfn(listener.run)]
 
 
 if args.broker:

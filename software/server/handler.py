@@ -34,32 +34,44 @@ def serve_stacked():
   return stacked.generate()
 
 
-@app.route('/stream/<plug_num>', methods=['GET'])
+@app.route('/stream/<plug_num>', methods=['POST','GET'])
 def stream(plug_num):
-  ip = config.broker['ip']
-  user = config.broker['user']
-  pw = config.broker['pass']
-  port = config.broker['port']['websocket']
-  useSSL = config.broker['useSSL']
-
-  con = connect()
-
-  name_and_status = [(alias if alias else mac, status)
-      for mac, alias, status in execute(con, "SELECT * FROM Plugs")]
-  name, status = name_and_status[int(plug_num)]
-
-  con.close()
-
-  if not status:
-    return f'{name} is disabled!'
+  if request.method == 'POST':
+    plug = request.form.get('mac')
+    alias = request.form.get('alias')
+    con = connect()
+    upd_alias(con, alias, plug)
+    con.close()
+    logging.debug(f'gave {plug} alias {alias}')
+    return '', 204 # return empty response
   else:
-    return render_template("powersolo.html",
-                           plug_name=name,
-                           ip=ip,
-                           port=port,
-                           useSSL=useSSL,
-                           username=user,
-                           password=pw)
+    ip = config.broker['ip']
+    user = config.broker['user']
+    pw = config.broker['pass']
+    port = config.broker['port']['websocket']
+    useSSL = config.broker['useSSL']
+
+    con = connect()
+
+    name_and_status = [(mac, alias, status)
+        for mac, alias, status in execute(con, "SELECT * FROM Plugs")]
+    mac, name, status = name_and_status[int(plug_num)]
+    
+    
+
+    con.close()
+
+    if not status:
+      return f'{name} is disabled!'
+    else:
+      return render_template("powersolo.html",
+                            plug_name=name,
+                            mac = mac,
+                            ip=ip,
+                            port=port,
+                            useSSL=useSSL,
+                            username=user,
+                            password=pw)
 
 
 @app.route('/toggle', methods = ['POST'])
@@ -88,7 +100,7 @@ def site_map():
   return render_template("sitemap.html", links=links)
 
 
-@app.route("/")
+@app.route("/list")
 def root():
   con = connect()
   plugs = [(mac, alias if alias else mac, status)
@@ -97,7 +109,7 @@ def root():
   return render_template("powerlist.html", plugs=plugs)
 
 
-@app.route("/home")
+@app.route("/")
 def home():
   con = connect()
   plugs = [(mac, alias if alias else mac, status)

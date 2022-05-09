@@ -310,7 +310,14 @@ input:checked+.slider:before {
 .plugURL {
     color: blue;
 }
+
+/*
 a+.plugURL,
 a:visited+.plugURL {
+    color: blue;
+}*/
+
+a,
+a:visited {
     color: blue;
 }

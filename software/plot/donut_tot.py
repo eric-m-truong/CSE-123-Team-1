@@ -23,8 +23,7 @@ def generate():
 
   con.close()
 
-  #File Code
-  output_file(filename="server/templates/donut.html", title="Donut HTML File")
+  
 
   # Data
 
@@ -47,6 +46,7 @@ def generate():
       line_color="white", fill_color='color',
       legend_field='dev', source=data)
 
+  
   p.axis.axis_label=None
   p.axis.visible=False
   p.grid.grid_line_color = None
@@ -57,6 +57,8 @@ def generate():
   p.outline_line_alpha = 0;
   p.border_fill_alpha = 0;
 
+  #File Code
+  output_file(filename="server/templates/donut.html", title="Donut HTML File")
   save(p)
 
   return file_html(p, CDN)
