@@ -23,6 +23,9 @@ def generate():
 
   con.close()
 
+  if len(x) == 0:
+    return 'no plugs found in db'
+
   # Data
 
   data = pd.Series(x).reset_index(name='value').rename(columns={'index': 'dev'})
@@ -32,11 +35,11 @@ def generate():
 
   # Plotting code
 
-  p = figure(plot_height=350, title="Total Electricity Use",
+  p = figure(title="Total Electricity Use",
+      sizing_mode='stretch_both',
       toolbar_location=None,
       tools="hover",
-      tooltips="@dev: @value",
-      x_range=(-0.5, 1.0))
+      tooltips="@dev: @value")
 
   p.annular_wedge(x=0, y=1,
       inner_radius=0.2, outer_radius=0.4,
@@ -44,8 +47,8 @@ def generate():
       line_color="white", fill_color='color',
       legend_field='dev', source=data)
 
-  p.axis.axis_label=None
-  p.axis.visible=False
+  p.axis.axis_label = None
+  p.axis.visible = False
   p.grid.grid_line_color = None
 
   return file_html(p, CDN)

@@ -32,6 +32,9 @@ def generate():
 
   con.close()
 
+  if len(macs) == 0:
+    return 'no plugs found in db'
+
   # Get list of keys now, before we add x data
   names = list(data.keys())
 

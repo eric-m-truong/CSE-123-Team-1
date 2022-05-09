@@ -6,7 +6,7 @@ route|desc
 /donut_tot|plug usage overall
 /stacked|24h usage w/ plugs data stacked on top each other
 /stream/<plug_num>|live plot of incoming websocket mqtt data, uses `templates/mqtt_ws.html`
-/toggle/<plug_num>|sends <plug_num> to 'ctrl' mqtt topic. does not redirect.
+/toggle/<plug_num>|sends <plug_num> to 'control' mqtt topic. does not redirect.
 /toggle|loads a form to specify plug # to toggle
 /|display sitemap
 /lp|list plugs by mac or alias if applicable, status, and allows toggling. clicking a plug name redirects to /stream/<plug_num>. uses `templates/lp.html`
