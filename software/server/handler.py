@@ -78,8 +78,8 @@ def toggle():
   return '', 204 # return empty response
 
 
-@app.route("/")
-def root():
+@app.route("/map")
+def site_map():
   links = []
   for r in app.url_map.iter_rules():
     links.append((str(r), r.endpoint))
@@ -95,6 +95,9 @@ def root():
 
   if len(plugs) == 0:
     return 'no plugs found in db'
+
+  return render_template("powerlist.html", plugs=plugs)
+
 
 @app.route("/")
 def home():
