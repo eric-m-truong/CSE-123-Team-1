@@ -27,7 +27,7 @@ def serve_stacked():
   return stacked.generate()
 
 
-@app.route('/stream/<plug_num>', methods=['GET'])
+@app.route('/stream/<plug_num>', methods=['POST','GET'])
 def stream(plug_num):
   ip = config.broker['ip']
   user = config.broker['user']
@@ -37,26 +37,27 @@ def stream(plug_num):
 
   con = connect()
 
-  name_and_status = [(alias if alias else mac, status)
+  plugs = [(mac, alias if alias else mac, status)
       for mac, alias, status in execute(con, "SELECT * FROM Plugs")]
 
   con.close()
 
   try:
-    name, status = name_and_status[int(plug_num)]
+    mac, name, status = plugs[int(plug_num)]
   except (IndexError, ValueError):
     return 'no such plug'
 
   if not status:
     return f'{name} is disabled!'
   else:
-    return render_template("mqtt_ws.html",
-                           plug_name=name,
-                           ip=ip,
-                           port=port,
-                           useSSL=useSSL,
-                           username=user,
-                           password=pw)
+    return render_template("powersolo.html",
+                          plug_name=name,
+                          mac=mac,
+                          ip=ip,
+                          port=port,
+                          useSSL=useSSL,
+                          username=user,
+                          password=pw)
 
 
 @app.route('/toggle', methods = ['POST'])
@@ -85,8 +86,8 @@ def root():
   return render_template("sitemap.html", links=links)
 
 
-@app.route("/lp")
-def list_plugs():
+@app.route("/list")
+def root():
   con = connect()
   plugs = [(mac, alias if alias else mac, status)
       for mac, alias, status in execute(con, "SELECT * FROM Plugs").fetchall()]
@@ -95,7 +96,16 @@ def list_plugs():
   if len(plugs) == 0:
     return 'no plugs found in db'
 
-  return render_template("lp.html", plugs=plugs)
+@app.route("/")
+def home():
+  con = connect()
+  plugs = [(mac, alias if alias else mac, status)
+      for mac, alias, status in execute(con, "SELECT * FROM Plugs").fetchall()]
+  con.close()
+  return render_template("power.html",
+                         plugs=plugs,
+                         donut=donut_tot.generate(),
+                         stacked=stacked.generate())
 
 
 @app.route("/alias", methods = ['POST', 'GET'])

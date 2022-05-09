@@ -1,0 +1,323 @@
+body {
+    margin-left: 0px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    width: 100%;
+
+    height: 100%;
+
+    overflow: hidden;
+    aspect-ratio: 16/9;
+
+}
+
+:root {
+    --topBoxSize: 0.150;
+}
+
+#container {
+
+    height: calc(100vh * var(--topBoxSize));
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ADDF70;
+}
+
+#content {
+    flex: 1 0 75px;
+    font-family: 'Exo 2';
+    color: #FFFFFF;
+    font-size: calc(10vh * 0.48);
+}
+
+#textbox {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+}
+
+.alignleft {
+    width: 33.33333%;
+    text-align: left;
+    font-size: calc(7.5vh * 0.48);
+}
+
+.aligncenter {
+    width: 33.33333%;
+    text-align: center;
+}
+
+.alignright {
+    width: 33.33333%;
+    text-align: right;
+    font-size: calc(7.5vh * 0.48);
+}
+
+.LeftGraphBox {
+    position: relative;
+    top: calc(50vh * 0.215);
+    left: calc(50vw * 0.05);
+    border: 1px solid black;
+    width: calc(75vw * 0.52);
+    height: calc(100vh * 0.465);
+    border-radius: 65px;
+}
+
+/*
+.CenterGraphBox {
+    position: absolute;
+    top: calc(100vh * 0.215);
+    left: calc(100vw * 0.23953);
+    border: 1px solid black;
+    width: calc(100vw * 0.52);
+    height: calc(100vh * 0.465);
+    border-radius: 65px;
+}
+*/
+
+.RightGraphBox {
+    position: relative;
+    top: calc(100vh * 0.215);
+    left: calc(100vw * 0.84375);
+    border: 1px solid black;
+    width: calc(100vw * 0.52);
+    height: calc(100vh * 0.465);
+    border-radius: 65px;
+}
+
+#graphBoxes {
+    margin: 0 auto;
+
+    margin-top: 5vh;
+    height: 100%;
+    width: 100%;
+}
+
+#leftBox,
+#rightBox {
+    display: inline-block;
+    *display: inline;
+    vertical-align: top;
+    margin: 0 auto;
+    font-size: 12px;
+    border: 1px solid black;
+    width: calc(80vw * 0.52);
+    height: calc(100vh * 0.465);
+    border-radius: 65px;
+}
+
+#leftBox {
+    float: left;
+}
+
+#rightBox {
+    float: right;
+}
+
+#donut {
+    padding-top: calc(6vh * 0.169);
+
+    margin: 0 auto;
+    width: 85%;
+    height: 95%;
+    display: block;
+}
+
+#stacked {
+    padding-top: calc(6vh * 0.169);
+
+    margin: 0 auto;
+    width: 85%;
+    height: 95%;
+    display: block;
+}
+
+.PowerBox {
+    position: absolute;
+    top: calc(100vh * 0.750);
+    border: 1px solid black;
+    width: calc(100vmin * 0.20);
+    height: calc(100vmin * 0.20);
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.PowerBoxContent {
+    text-align: center;
+    font-family: 'Exo 2';
+
+    font-size: calc(7.5vmin * 0.24);
+}
+
+/* Credits to w3schools. https://www.w3schools.com/howto/howto_css_custom_checkbox.asp /*
+/* Customize the label (the container) */
+.container {
+    display: block;
+    position: relative;
+    padding-left: 20px;
+    top: 1px;
+    left: 1px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: calc(10vh * 0.14);
+    font-family: 'Exo 2';
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/*
+/* Hide the browser's default checkbox 
+.container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Create a custom checkbox 
+.checkmark {
+    position: absolute;
+    border: 1px solid black;
+    top: 0px;
+    left: 0px;
+    height: 15px;
+    width: 15px;
+    border-radius: 3px;
+    background-color: rgb(255, 255, 255);
+}
+
+/* On mouse-over, add a grey background color 
+.container:hover input~.checkmark {
+    background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background 
+.container input:checked~.checkmark {
+    background-color: #ffffff;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) 
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the checkmark when checked 
+.container input:checked~.checkmark:after {
+    display: block;
+}
+
+/* Style the checkmark/indicator 
+.container .checkmark:after {
+    left: 3.5px;
+    top: -1px;
+    width: 4px;
+    height: 10px;
+    border: 1px solid black;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+*/
+/* Credits to w3schools. https://www.w3schools.com/howto/howto_css_switch.asp /*
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: calc(15vh * 0.6);
+    height: calc(15vh * 0.34);
+    /*width: min(calc(10vh * 0.6), calc(10vw * 0.6));
+    height: min(calc(10vh * 0.34), calc(10vw * 0.34));*/
+    /*left: calc(15vh * 0.1);*/
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: calc(15vh * 0.26);
+    width: calc(15vh * 0.26);
+    /*height: min(calc(10vh * 0.26), calc(10vw * 0.26));
+    width: min(calc(10vh * 0.26), calc(10vw * 0.26));*/
+    left: calc(15vh * 0.04);
+    bottom: calc(15vh * 0.04);
+    /*left: min(calc(10vw * 0.04), calc(10vh * 0.04));
+    bottom: min(calc(10vw * 0.04), calc(10vh * 0.04));*/
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked+.slider {
+    background-color: #21f333;
+}
+
+input:focus+.slider {
+    -webkit-box-shadow: 0 0 1px #21f333;
+    box-shadow: 0 0 1px #21f333;
+}
+
+input:checked+.slider:before {
+    /*-webkit-transform: translateX(min(calc(10vh * 0.26), calc(10vw * 0.26)));
+    transform: translateX(min(calc(10vh * 0.26), calc(10vw * 0.26)));*/
+    -webkit-transform: translateX(calc(15vh * 0.26));
+    transform: translateX(calc(15vh * 0.26));
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: calc(15vh * 0.34);
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.plugURL {
+    color: blue;
+}
+
+/*
+a+.plugURL,
+a:visited+.plugURL {
+    color: blue;
+}*/
+
+a,
+a:visited {
+    color: blue;
+}

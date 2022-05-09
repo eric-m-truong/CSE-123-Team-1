@@ -62,7 +62,13 @@ def generate():
       legend_label=names,
       source=data)
 
-  p.legend.orientation = "horizontal"
   p.legend.background_fill_color = "#fafafa"
+
+  p.legend.orientation ='vertical'
+  p.grid.grid_line_color = None
+  p.outline_line_color = None
+  p.toolbar.logo = None
+  p.outline_line_alpha = 0
+  p.border_fill_alpha = 0
 
   return file_html(p, CDN)
