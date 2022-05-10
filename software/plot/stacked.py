@@ -23,7 +23,12 @@ def generate():
 
   con = connect()
 
-  macs, aliases = zip(*execute(con, "SELECT mac_addr, alias FROM Plugs"))
+  cur = execute(con, "SELECT mac_addr, alias FROM Plugs").fetchall()
+
+  if len(cur) == 0:
+    return 'no plugs found in db'
+
+  macs, aliases = zip(*cur)
   HRS_DAY = 24
   data = {mac: np.zeros(HRS_DAY) for mac in macs}
 
@@ -68,7 +73,12 @@ def generate():
   p.grid.grid_line_color = None
   p.outline_line_color = None
   p.toolbar.logo = None
+  p.toolbar_location = None
+  p.sizing_mode='stretch_both';
   p.outline_line_alpha = 0
   p.border_fill_alpha = 0
+  
+  
+
 
   return file_html(p, CDN)
