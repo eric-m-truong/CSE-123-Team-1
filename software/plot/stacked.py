@@ -23,7 +23,12 @@ def generate():
 
   con = connect()
 
-  macs, aliases = zip(*execute(con, "SELECT mac_addr, alias FROM Plugs"))
+  cur = execute(con, "SELECT mac_addr, alias FROM Plugs").fetchall()
+
+  if len(cur) == 0:
+    return 'no plugs found in db'
+
+  macs, aliases = zip(*cur)
   HRS_DAY = 24
   data = {mac: np.zeros(HRS_DAY) for mac in macs}
 
