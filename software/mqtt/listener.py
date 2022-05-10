@@ -16,6 +16,7 @@ def run():
 
   buffer = []  # used by parse_data_message
 
+
   @cache
   def add_mac(mac_addr):
     """ add a mac to the db. this function caches args and returns nothing, so
@@ -23,7 +24,6 @@ def run():
     logging.debug(f'querying db for {mac_addr}')
     if not util.get_plug_by_mac(con, mac_addr):
       logging.debug(f'{mac_addr} is new, adding to db')
-      known[mac_addr] = None # ensure we don' query the db again
       plug = table_classes.Plug(mac_addr, is_on=True)   # Sent msg, should be on
       util.add_plug(con, plug)
 
