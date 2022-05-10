@@ -40,9 +40,9 @@ def generate():
 
   p = figure(title="Total Electricity Use",
       sizing_mode='stretch_both',
-      toolbar_location=None,
-      tools="hover",
-      tooltips="@dev: @value")
+      tools="hover,save",
+      tooltips="@dev: @value",
+      toolbar_location='below')
 
   p.annular_wedge(x=0, y=1,
       inner_radius=0.2, outer_radius=0.4,
@@ -53,5 +53,6 @@ def generate():
   p.axis.axis_label = None
   p.axis.visible = False
   p.grid.grid_line_color = None
+  p.toolbar.logo = None
 
   return file_html(p, CDN)
