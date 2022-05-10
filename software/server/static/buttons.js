@@ -91,7 +91,7 @@ function sendSignal() {
           message.retained = true;
           message.destinationName = "plux/control/" + key;
           client.send(message);
-          //console.log("Let's go!1")
+          console.log(key)
           return;
         }
         else if (dict[key] == ON && buttonStatus[i].checked == false) {
@@ -100,7 +100,7 @@ function sendSignal() {
           message.retained = true;
           message.destinationName = "plux/control/" + key;
           client.send(message);
-          //console.log("Oh no!2")
+          console.log(key)
           return;
         }
         /*else if (dict[key] == 0 && buttonStatus[i].checked == false) {
@@ -145,13 +145,22 @@ var rBuf = new Int8Array(4);
 window.crypto.getRandomValues(rBuf);
 const r = new DataView(rBuf.buffer).getUint32();
 
-client = new Paho.MQTT.Client("mosquitto.projectplux.info", Number(80), "");
+console.log(ip, port, username, password, useSSL)
+
+client = new Paho.MQTT.Client(ip, Number(port), "plux-ctrl" + r);
+
 // set callback handlers
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
 
 // connect the client
-client.connect({ userName: "eric", password: "truong", useSSL: true, onSuccess: onConnect });
+client.connect({
+    onSuccess: onConnect,
+    userName: username,
+    password: password,
+    useSSL: useSSL,
+});
+
 const pluxSignal = document.querySelectorAll('input[type="checkbox"]')
 for (var X = 0, Y = pluxSignal.length; X < Y; X++) {
   pluxSignal[X].addEventListener('click', sendSignal);

@@ -88,6 +88,12 @@ def site_map():
 
 @app.route("/list")
 def root():
+  ip = config.broker['ip']
+  user = config.broker['user']
+  pw = config.broker['pass']
+  port = config.broker['port']['websocket']
+  useSSL = config.broker['useSSL']
+
   con = connect()
   plugs = [(mac, alias if alias else mac, status)
       for mac, alias, status in execute(con, "SELECT * FROM Plugs").fetchall()]
@@ -96,19 +102,37 @@ def root():
   if len(plugs) == 0:
     return 'no plugs found in db'
 
-  return render_template("powerlist.html", plugs=plugs)
+  return render_template("powerlist.html",
+                         plugs=plugs,
+                         ip=ip,
+                         port=port,
+                         useSSL=useSSL,
+                         username=user,
+                         password=pw)
 
 
 @app.route("/")
 def home():
+  ip = config.broker['ip']
+  user = config.broker['user']
+  pw = config.broker['pass']
+  port = config.broker['port']['websocket']
+  useSSL = config.broker['useSSL']
+
   con = connect()
   plugs = [(mac, alias if alias else mac, status)
       for mac, alias, status in execute(con, "SELECT * FROM Plugs").fetchall()]
   con.close()
+
   return render_template("power.html",
                          plugs=plugs,
                          donut=donut_tot.generate(),
-                         stacked=stacked.generate())
+                         stacked=stacked.generate(),
+                         ip=ip,
+                         port=port,
+                         useSSL=useSSL,
+                         username=user,
+                         password=pw)
 
 
 @app.route("/alias", methods = ['POST', 'GET'])
