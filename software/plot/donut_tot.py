@@ -50,17 +50,8 @@ def generate():
       line_color="white", fill_color='color',
       legend_field='dev', source=data)
 
-  
-
-  p.axis.axis_label=None
-  p.axis.visible=False
+  p.axis.axis_label = None
+  p.axis.visible = False
   p.grid.grid_line_color = None
-  p.outline_line_color = None
-  p.toolbar.logo = None
-  p.toolbar_location = None
-  p.sizing_mode='stretch_both';
-  p.outline_line_alpha = 0;
-  p.border_fill_alpha = 0;
-
 
   return file_html(p, CDN)
