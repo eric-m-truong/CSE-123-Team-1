@@ -15,7 +15,6 @@ def run():
 
 
   buffer = []  # used by parse_data_message
-  known = {}
 
   @cache
   def add_mac(mac_addr):
