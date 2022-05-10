@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="power.css">
+    <link href='https://fonts.googleapis.com/css?family=Exo 2' rel='stylesheet'>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"
+        type="text/javascript"></script>
+    <title>123</title>
+
+    <script type="text/javascript">
+        var ip = '{{ ip }}'
+        var port = '{{ port }}'
+        var username = '{{ username }}'
+        var password = '{{ password }}'
+        var useSSL = {{ useSSL }}
+    </script>
+
+</head>
+
+<body>
+    <div id="container">
+        <div id="content">
+            <div id="textbox">
+                <p class="alignleft"><a href="/">Home Page</a></p>
+                <p class="aligncenter">Krysha's PLUX Center</p>
+                <p class="alignright"><a href="/list">List Plugs</a></p>
+            </div>
+        </div>
+    </div>
+    <div id="graphBoxes">
+        <div id="leftBox">
+            <div id="donut">
+                {{ donut | safe }}
+            </div>
+        </div>
+        <div id="rightBox">
+            <div id="stacked">
+                {{ stacked | safe }}
+            </div>
+        </div>
+    </div>
+    {% for mac, alias, status in plugs %}
+    <tr>
+        <td>
+            <div class="PowerBox">
+                <div class="PowerBoxContent"> <label name="dragBox" id="BOX{{ mac }}">
+                        <a class="plugURL" href="{{ url_for('stream', plug_num=loop.index0) }}">{{ alias
+                            }}<br><br><br><br></a>
+                        <label class="switch">
+                            <input type="checkbox" name="statusSignal" id="{{ mac }}">
+                            <span class="slider round"></span>
+                        </label>
+                    </label>
+                </div>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+
+</body>
+<script src="buttons.js"></script>
+<script src="drag.js"></script>
+
+
+</html>

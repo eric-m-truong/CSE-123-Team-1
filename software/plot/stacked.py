@@ -23,7 +23,7 @@ def generate():
 
   con = connect()
 
-  macs = [mac[0] for mac in execute(con, "SELECT mac_addr FROM Plugs")]
+  macs, aliases = zip(*execute(con, "SELECT mac_addr, alias FROM Plugs"))
   HRS_DAY = 24
   data = {mac: np.zeros(HRS_DAY) for mac in macs}
 
@@ -36,7 +36,7 @@ def generate():
     return 'no plugs found in db'
 
   # Get list of keys now, before we add x data
-  names = list(data.keys())
+  names = list(map(lambda mac, alias: alias if alias else mac, macs, aliases))
 
   data['ts'] = np.array(range(1, HRS_DAY + 1))
 
@@ -62,7 +62,13 @@ def generate():
       legend_label=names,
       source=data)
 
-  p.legend.orientation = "horizontal"
   p.legend.background_fill_color = "#fafafa"
+
+  p.legend.orientation ='vertical'
+  p.grid.grid_line_color = None
+  p.outline_line_color = None
+  p.toolbar.logo = None
+  p.outline_line_alpha = 0
+  p.border_fill_alpha = 0
 
   return file_html(p, CDN)

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Exo 2' rel='stylesheet'>
+    <link rel="stylesheet" href="powerlist.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"
+        type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        var ip = '{{ ip }}'
+        var port = '{{ port }}'
+        var username = '{{ username }}'
+        var password = '{{ password }}'
+        var useSSL = {{ useSSL }}
+    </script>
+
+</head>
+
+<body>
+    <div id="container">
+        <div id="content">
+            <div id="textbox">
+                <p class="alignleft"><a href="/">Home Page</a></p>
+                <p class="aligncenter">Krysha's PLUX List</p>
+                <p class="alignright"><a href="/list">List Plugs</a></p>
+            </div>
+        </div>
+    </div>
+    <table class="centeredTable">
+        {% for mac, alias, status in plugs %}
+        <tr>
+            <td>
+                <div class="databox">
+                    <div class="databoxContent"> <a href="{{ url_for('stream', plug_num=loop.index0) }}">{{ alias }}</a>
+                        <label class="switch">
+                            <input type="checkbox" name="statusSignal" id="{{ mac }}">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+<script src="buttons.js"></script>
+
+</html>

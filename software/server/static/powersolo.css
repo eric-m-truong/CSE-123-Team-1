@@ -1,0 +1,173 @@
+body {
+  margin-left: 0px;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  width: 100%;
+
+  height: 100%;
+
+  overflow: hidden;
+  aspect-ratio: 16/9;
+
+}
+
+input[type="text"] {
+  background: transparent;
+  border: none;
+  text-align: center;
+  font-family: 'Exo 2';
+  color: #FFFFFF;
+  font-size: calc(10vh * 0.48);
+  min-width: 50px;
+  margin: 0px;
+  padding: 0px;
+  display: inline;
+
+}
+
+:root {
+  --topBoxSize: 0.150;
+}
+
+.bokehPlot {
+  padding-top: calc(6vh * 0.169);
+
+  margin: 0 auto;
+  width: 85%;
+  height: 95%;
+
+
+}
+
+#container {
+  background-color: #ADDF70;
+  height: calc(100vh * var(--topBoxSize));
+  border: 1px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#content {
+  flex: 1 0 75px;
+  text-align: center;
+  font-family: 'Exo 2';
+  color: #FFFFFF;
+  font-size: calc(10vh * 0.48);
+}
+
+#textbox {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+
+.alignleft {
+  width: 33.33333%;
+  text-align: left;
+  font-size: calc(7.5vh * 0.48);
+}
+
+.aligncenter {
+  width: 33.33333%;
+  text-align: center;
+}
+
+.alignright {
+  width: 33.33333%;
+  text-align: right;
+  font-size: calc(7.5vh * 0.48);
+}
+
+.MainGraphBox {
+
+  /*top: calc(50vh);*/
+  margin: 0 auto;
+  margin-top: 5vh;
+  border: 1px solid black;
+  width: calc(100vw * 1.5 * 0.52);
+  height: calc(100vh * 1.5 * 0.465);
+  border-radius: 65px;
+}
+
+
+/* Credits to w3schools. https://www.w3schools.com/howto/howto_css_switch.asp /*
+/* The switch - the box around the slider */
+.switch {
+  left: 50%;
+  top: 2%;
+  position: relative;
+  display: inline-block;
+  width: calc(15vh * 0.6);
+  height: calc(15vh * 0.34);
+  /*width: min(calc(10vh * 0.6), calc(10vw * 0.6));
+  height: min(calc(10vh * 0.34), calc(10vw * 0.34));*/
+  /*left: calc(15vh * 0.1);*/
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: calc(15vh * 0.26);
+  width: calc(15vh * 0.26);
+  /*height: min(calc(10vh * 0.26), calc(10vw * 0.26));
+  width: min(calc(10vh * 0.26), calc(10vw * 0.26));*/
+  left: calc(15vh * 0.04);
+  bottom: calc(15vh * 0.04);
+  /*left: min(calc(10vw * 0.04), calc(10vh * 0.04));
+  bottom: min(calc(10vw * 0.04), calc(10vh * 0.04));*/
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked+.slider {
+  background-color: #21f333;
+}
+
+input:focus+.slider {
+  -webkit-box-shadow: 0 0 1px #21f333;
+  box-shadow: 0 0 1px #21f333;
+}
+
+input:checked+.slider:before {
+  /*-webkit-transform: translateX(min(calc(10vh * 0.26), calc(10vw * 0.26)));
+  transform: translateX(min(calc(10vh * 0.26), calc(10vw * 0.26)));*/
+  -webkit-transform: translateX(calc(15vh * 0.26));
+  transform: translateX(calc(15vh * 0.26));
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: calc(15vh * 0.34);
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+a,
+a:visited {
+    color: blue;
+}

@@ -6,7 +6,6 @@ from db.connection import DB_PATH
 from script.dispatcher import exec, execfn
 from script import dispatcher
 from mqtt import listener, config # read config now so forks won't read again
-from server import handler
 
 
 parser = argparse.ArgumentParser(description='Run plux server.')
@@ -23,6 +22,10 @@ parser.add_argument('--broker', '-b',
                     action=argparse.BooleanOptionalAction,
                     default=False,
                     help='Run a local broker.')
+parser.add_argument('--webserver', '-w',
+                    action=argparse.BooleanOptionalAction,
+                    default=False,
+                    help='Run a local flask server.')
 args = parser.parse_args()
 
 format = '%(levelname)s:%(module)s:%(message)s'
@@ -36,13 +39,7 @@ if args.provision:
 # order matters here unfortunately. flask must come last so it isn't the
 # processt the dispatcher waits for. if it is, it will eat one of our
 # KeyboardInterrupt signals.
-es = [lambda: execfn(listener.run),
-      lambda: execfn(handler.app.run,
-        host='0.0.0.0', # listen on all addresses: accessible outside localhost
-        port=config.webserver['port'],
-        debug=False # don't show python errors in browser on error
-        )
-     ]
+es = [lambda: execfn(listener.run)]
 
 if args.broker:
   import inspect
@@ -78,10 +75,21 @@ if args.broker:
     waitpid(pid, 0)
 
 
-  es.insert(0, lambda: execfn(run_local_mosquitto))
+  es.append(lambda: execfn(run_local_mosquitto))
 
 if args.dummy:
-  es.insert(1, lambda: execfn(import_module('mqtt.datagen').run))
+  es.append(lambda: execfn(import_module('mqtt.datagen').run))
+
+if args.webserver:
+  from server import handler
+
+  es.append(
+    lambda: execfn(handler.app.run,
+      host='0.0.0.0', # listen on all addresses: accessible outside localhost
+      port=config.webserver['port'],
+      debug=False # don't show python errors in browser on error
+      )
+    )
 
 try:
   dispatcher.run(es)
