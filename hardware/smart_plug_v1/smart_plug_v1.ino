@@ -1,9 +1,9 @@
-#include <ACS712.h>
 #include <ZMPT101B.h>
 #include <WiFiManager.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 
+#include "ACS712.h"
 #include "time.h"
 
 // ESP32 Pins
@@ -43,17 +43,23 @@ unsigned long previousMillis = 0;                                               
 
 // Object constructors
 ZMPT101B ZMPT(VOLT_SENSOR);                  // call ZMPT101B constructor
-ACS712  ACS(ACS712_30A, CUR_SENSOR);         // call ACS712.h constructor for 30A variant
+ACS712  ACS(CUR_SENSOR, 5, 4095, 66);        // call ACS712.h constructor for 30A variant
 WiFiClient espClient;                        // call WiFi constructor
 PubSubClient client(espClient);              // call MQTT constructor
 WiFiManager wm;                              // call WiFi manager constructor (source: https://dronebotworkshop.com/wifimanager/)
 
 // Function declarations - General
-static void printLocalTime();
+static unsigned long printLocalTime();
+static int running_average(float data);
 
 // Function declarations - MQTT
 static int mqtt_setup();
 static void msg_receive(char *topic, byte* payload, unsigned int length);
+
+// Running average
+#define DATA_COUNT 20
+int count=0;                          // track number of data points summed 
+float average = 0, running_total=0;   // total sum of data for averaging
 
 /* initialization function for ESP32
  * sources: https://github.com/RobTillaart/ACS712/blob/master/examples/ACS712_20_AC/ACS712_20_AC.ino
@@ -97,9 +103,11 @@ void setup() {
   configTime(-28800, 3600, ntpServer);                        // configure time format for display
                                                               // -28800: UTC-8
                                                               // 3600: DST offset
-                                                              
-//  ZMPT.calibrate();                                           // calibrate voltage sensor (not working atm)
-  ACS.calibrate();                                            // calibrate current sensor
+
+//  delay(100);
+//  int temp = ZMPT.calibrate();                              // calibrate voltage sensor (not working atm)
+//  ZMPT.setZeroPoint(temp);
+  ACS.autoMidPoint(1);                                        // calibrate current sensor
 }
 
 /* main function for power monitoring and data transmission/reception
@@ -116,26 +124,34 @@ void loop() {
     previousMillis = currentMillis; // update previous timer value
 
 //    float volts = ZMPT.getVoltageAC(WALL_FREQ);                   // measure AC instantaneous voltage (not working atm)
-    float amps = ACS.getCurrentAC(WALL_FREQ);                       // measure AC instantaneous current
-    float watts = (WALL_VOLT * amps);                               // calculate instantaneous power
+    float amps = ACS.mA_AC(WALL_FREQ);                                // measure AC instantaneous current
+    float watts = (WALL_VOLT * amps) / 1000;                        // calculate instantaneous power
   
-    printLocalTime();                                               // get timestamp and place in local buffer
-    sprintf(mqtt_msg, "%s, %f", displayTime, watts);                // convert number to string in string buffer
-    memset(displayTime, '\0', MAX_TIME_LEN);                        // reset time buffer
+    unsigned long epoch = printLocalTime();                         // get timestamp and place in local buffer
+
+    // Add data to running average
+//    int r = running_average(watts);
+    //if (r > 0){
+      //
+      
+      watts = average;
+      sprintf(mqtt_msg, "%ul, %f", epoch, watts);                     // convert number to string in string buffer
+      memset(displayTime, '\0', MAX_TIME_LEN);                        // reset time buffer
+      int ret = client.publish(mqttDataTopicStr.c_str(), mqtt_msg, false);  // send power data as string to MQTT data topic
+      if (!ret) {
+        Serial.println("loop(): unable to publish MQTT message");          
+      } else {
+        Serial.print("Data: ");
+//        Serial.print(volts);
+//        Serial.print(" ");
+        Serial.print(amps);
+        Serial.print(" ");
+        Serial.print(watts);
+        Serial.println(" | loop(): MQTT message published");
+      }
     
-    int ret = client.publish(mqttDataTopicStr.c_str(), mqtt_msg, false);  // send power data as string to MQTT data topic
-    if (!ret) {
-      Serial.println("loop(): unable to publish MQTT message");          
-    } /*else {
-      Serial.print("Data: ");
-      Serial.print(volts);
-      Serial.print(" ");
-      Serial.print(amps);
-      Serial.println(" | loop(): MQTT message published");
-    }*/
-    
-    memset(mqtt_msg, '\0', MAX_MSG);                              // reset static buffer
-    
+      memset(mqtt_msg, '\0', MAX_MSG);                              // reset static buffer
+    //}
   }
 }
 
@@ -143,15 +159,17 @@ void loop() {
  * sources: https://lastminuteengineers.com/esp32-ntp-server-date-time-tutorial/
  *          https://forum.arduino.cc/t/time-library-functions-with-esp32-core/515397/4
  */
-static void printLocalTime(){
+unsigned long printLocalTime(){
+  time_t now;
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
 //    Serial.println("Failed to obtain time");
-    return;
+    return -1;
   }
 //  Serial.print("printLocaltime(): ");
 //  Serial.println(&timeinfo, "%Y-%m-%d %H:%M:%S");
-  strftime(displayTime, MAX_TIME_LEN, "%Y-%m-%d %H:%M:%S", &timeinfo);
+//  strftime(displayTime, MAX_TIME_LEN, "%Y-%m-%d %H:%M:%S", &timeinfo);
+  return time(&now);
 }
 
 /* initialization of MQTT connection
@@ -200,9 +218,26 @@ static void msg_receive(char *topic, byte* payload, unsigned int length) {
       digitalWrite(RELAY, HIGH);
       client.publish(mqttCtrlTopicAck.c_str(), (const unsigned char *) "1", 2, true); // needed for server
       return;
-    case 50: // turning OFF circuit (ASCII 2 == 50)
+    case 48: // turning OFF circuit (ASCII 0 == 48)
       digitalWrite(RELAY, LOW);
       client.publish(mqttCtrlTopicAck.c_str(), (const unsigned char *) "0", 2, true); // needed for server
       return;
   }
+}
+
+/*
+ * Tracks running sum and returns average once 20
+ * data points have been summed
+ */
+ static int running_average(float data){
+  running_total += data;
+  count++;
+  if (count >= DATA_COUNT){
+    // do average and reset average,count
+    average = running_total/DATA_COUNT;
+    running_total = 0;
+    count = 0;
+    return 1;
+  }
+  return 0;
 }
