@@ -1,6 +1,8 @@
 import paho.mqtt.client as mqtt
 from sys import exit
 import logging
+from functools import cache
+
 from db import connection, util, table_classes
 from mqtt import config
 
@@ -13,16 +15,25 @@ def run():
 
 
   buffer = []  # used by parse_data_message
+  known = {}
+
+  @cache
+  def add_mac(mac_addr):
+    """ add a mac to the db. this function caches args and returns nothing, so
+        calling this function twice with the same mac should do nothing. """
+    logging.debug(f'querying db for {mac_addr}')
+    if not util.get_plug_by_mac(con, mac_addr):
+      logging.debug(f'{mac_addr} is new, adding to db')
+      known[mac_addr] = None # ensure we don' query the db again
+      plug = table_classes.Plug(mac_addr, is_on=True)   # Sent msg, should be on
+      util.add_plug(con, plug)
+
 
   def parse_data_message(mac_addr, message):
     ts, pwr = csv_to_list(message.payload.decode("utf-8"))
     # logging.debug(f'\n ts:  {ts}\n pwr: {pwr}\n mac: {mac_addr}\n')
 
-    # TODO: may benefit from caching existence checks
-    # If this plug doesn't exist in the database, add it
-    if not util.get_plug_by_mac(con, mac_addr):
-      plug = table_classes.Plug(mac_addr, is_on=True)   # Sent msg, should be on
-      util.add_plug(con, plug)
+    add_mac(mac_addr)
 
     # Add the datapoint
     d = table_classes.Datapoint(ts, mac_addr, pwr)
