@@ -134,7 +134,7 @@ void loop() {
     //if (r > 0){
       //
       
-      watts = average;
+      //watts = average;
       sprintf(mqtt_msg, "%ul, %f", epoch, watts);                     // convert number to string in string buffer
       memset(displayTime, '\0', MAX_TIME_LEN);                        // reset time buffer
       int ret = client.publish(mqttDataTopicStr.c_str(), mqtt_msg, false);  // send power data as string to MQTT data topic
